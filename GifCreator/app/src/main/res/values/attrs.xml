@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FloatingButton">
+        <attr name="fab_title" format="string" />
+        <attr name="fab_title_size" format="dimension" />
+        <attr name="android:src" />
+    </declare-styleable>
+</resources>

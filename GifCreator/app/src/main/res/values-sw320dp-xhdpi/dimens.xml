@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="common_size_1">1dp</dimen>
+    <dimen name="common_size_2">2dp</dimen>
+    <dimen name="common_size_3">3dp</dimen>
+    <dimen name="common_size_4">4dp</dimen>
+    <dimen name="common_size_5">5dp</dimen>
+    <dimen name="common_size_6">6dp</dimen>
+    <dimen name="common_size_7">7dp</dimen>
+    <dimen name="common_size_8">8dp</dimen>
+    <dimen name="common_size_9">9dp</dimen>
+    <dimen name="common_size_10">10dp</dimen>
+    <dimen name="common_text_size_1">10sp</dimen>
+    <dimen name="common_text_size_2">11sp</dimen>
+    <dimen name="common_text_size_3">12sp</dimen>
+    <dimen name="common_text_size_4">13sp</dimen>
+    <dimen name="common_text_size_5">14sp</dimen>
+    <dimen name="common_text_size_6">15sp</dimen>
+    <dimen name="common_text_size_7">16sp</dimen>
+    <dimen name="common_text_size_8">17sp</dimen>
+    <dimen name="common_text_size_9">18sp</dimen>
+    <dimen name="common_text_size_10">19sp</dimen>
+    <dimen name="common_text_size_11">20sp</dimen>
+</resources>

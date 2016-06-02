@@ -2,4 +2,7 @@
     <string name="app_name">GifCreator</string>
     <string name="action_settings">Settings</string>
     <string name="button_gallery">Image Gallery</string>
+    <string name="fab_facebook">Get photo from facebook</string>
+    <string name="fab_camera">Get photo from camera</string>
+    <string name="fab_gallery">Get photo from gallery</string>
 </resources>

@@ -1,20 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="com.framgia.gifcreator.MainActivity">
-
-    <Button
-        android:id="@+id/button_imageGallery"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_gallery" />
+    android:fitsSystemWindows="true">
 
     <ImageView
-        android:id="@+id/image_gallery"
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/button_imageGallery" />
-</RelativeLayout>
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/common_size_10"
+        android:layout_marginRight="@dimen/common_size_10"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/floating_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/common_size_8"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <com.framgia.gifcreator.ui.widget.FloatingButton
+                android:id="@+id/fab_camera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:src="@drawable/ic_camera"
+                app:fab_title="@string/fab_camera" />
+
+            <com.framgia.gifcreator.ui.widget.FloatingButton
+                android:id="@+id/fab_gallery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:src="@drawable/ic_gallery"
+                app:fab_title="@string/fab_gallery" />
+
+            <com.framgia.gifcreator.ui.widget.FloatingButton
+                android:id="@+id/fab_facebook"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:src="@drawable/ic_facebook"
+                app:fab_title="@string/fab_facebook" />
+        </LinearLayout>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/main_floating_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:src="@drawable/ic_plus" />
+    </LinearLayout>
+</android.support.design.widget.CoordinatorLayout>
