@@ -30,16 +30,16 @@ public class MainActivity extends AppCompatActivity {
     private View.OnClickListener mFabOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            Intent intent;
             switch (v.getId()) {
                 case R.id.fab_camera:
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
                     startActivityForResult(intent, REQUEST_CAMERA);
                     break;
                 case R.id.fab_gallery:
-                    intent = new Intent(Intent.ACTION_PICK,
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(intent, REQUEST_GALLERY);
+                    intent = new Intent(MainActivity.this, ChoosingImageActivity.class);
+                    startActivity(intent);
                     break;
                 case R.id.main_floating_button:
                     if (mFloatingMenu.getVisibility() == View.GONE) {
