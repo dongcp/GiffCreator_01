@@ -7,4 +7,6 @@
     <color name="white">#FFFFFF</color>
     <color name="floating_button_background_color">#EC850F</color>
     <color name="floating_button_text_background_color">#f2eded</color>
+    <color name="bottom_navigation_color">#f2741f</color>
+    <color name="bottom_navigation_item_highlight_color">#e77224</color>
 </resources>

@@ -16,7 +16,8 @@ public class BitmapDecoder {
         BitmapFactory.decodeFile(file, options);
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(file, options);
+        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(file, options),
+                reqWidth, reqHeight, true);
     }
 
     public static Bitmap decodeByteArray(Bitmap bitmap, int reqWidth, int reqHeight) {
@@ -28,7 +29,8 @@ public class BitmapDecoder {
         BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
+        return Bitmap.createScaledBitmap(BitmapFactory.decodeByteArray(
+                imageData, 0, imageData.length, options), reqWidth, reqHeight, true);
     }
 
     private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {

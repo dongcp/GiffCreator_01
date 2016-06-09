@@ -1,88 +1,131 @@
 package com.framgia.gifcreator.ui.activity;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import com.framgia.gifcreator.R;
 import com.framgia.gifcreator.adapter.ImageAdapter;
-import com.framgia.gifcreator.util.ImageItem;
+import com.framgia.gifcreator.data.Constants;
+import com.framgia.gifcreator.data.ImageItem;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
-public class ChoosingImageActivity extends AppCompatActivity implements ImageAdapter.OnItemClicklistener {
+public class ChoosingImageActivity extends AppCompatActivity implements ImageAdapter.OnItemClickListener,
+        View.OnClickListener {
+
+    private final String CAMERA_IMAGE_TITLE = "Gif Creator";
+    private final String CAMERA_IMAGE_DESCRIPTION = "Image Description";
     private ImageAdapter mImageAdapter;
     private RecyclerView mRecyclerView;
+    private LinearLayout mFloatingMenu;
     private ArrayList<ImageItem> mImageItems;
-    public static final int RESULT_LOAD_IMG = 1;
+    private Uri mImageUri;
+    private ContentValues mValues;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choosing_image);
         findView();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu_chosen_image, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_adding_image:
-                openGalerry();
-                break;
+        mValues = new ContentValues();
+        mValues.put(MediaStore.Images.Media.TITLE, CAMERA_IMAGE_TITLE);
+        mValues.put(MediaStore.Images.Media.DESCRIPTION, CAMERA_IMAGE_DESCRIPTION);
+        mImageUri = getContentResolver().insert(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, mValues);
+        Intent intent = getIntent();
+        if (intent != null) {
+            switch (intent.getIntExtra(Constants.INTENT_REQUEST, Constants.REQUEST_GALLERY)) {
+                case Constants.REQUEST_CAMERA:
+                    Intent getPhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    getPhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+                    startActivityForResult(getPhotoIntent, Constants.REQUEST_CAMERA);
+                    break;
+                case Constants.REQUEST_GALLERY:
+                    getPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(getPhotoIntent, Constants.REQUEST_GALLERY);
+                    break;
+            }
         }
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void findView() {
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_choosing_image);
-        mImageItems = new ArrayList<>();
-        mImageAdapter = new ImageAdapter(this, mImageItems);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
-        mImageAdapter.setOnItemClicklistener(this);
-        mRecyclerView.setLayoutManager(gridLayoutManager);
-        mRecyclerView.setAdapter(mImageAdapter);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK && data != null) {
-            Uri selectedImg = data.getData();
-            String[] filePathColumn = {MediaStore.Images.Media.DATA};
-            Cursor cursor = getContentResolver().query(selectedImg, filePathColumn, null, null, null);
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String imgDecodeString = cursor.getString(columnIndex);
-            ImageItem imageItem = new ImageItem(imgDecodeString);
-            mImageItems.add(imageItem);
-            mImageAdapter.notifyItemInserted(mImageItems.indexOf(imageItem));
-            cursor.close();
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case Constants.REQUEST_CAMERA:
+                    try {
+                        Bitmap image = MediaStore.Images.Media.getBitmap(
+                                getContentResolver(), mImageUri);
+                        ImageItem imageItem = new ImageItem(image);
+                        mImageItems.add(imageItem);
+                        mImageAdapter.notifyItemInserted(mImageItems.indexOf(imageItem));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case Constants.REQUEST_GALLERY:
+                    Uri selectedImg = data.getData();
+                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = getContentResolver().query(selectedImg, filePathColumn, null, null, null);
+                    cursor.moveToFirst();
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    String imgDecodeString = cursor.getString(columnIndex);
+                    cursor.close();
+                    ImageItem imageItem = new ImageItem(imgDecodeString);
+                    mImageItems.add(imageItem);
+                    mImageAdapter.notifyItemInserted(mImageItems.indexOf(imageItem));
+                    break;
+            }
         }
-    }
-
-    private void openGalerry() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, RESULT_LOAD_IMG);
     }
 
     @Override
     public void onRemoveItem(int position) {
         mImageItems.remove(position);
         mImageAdapter.notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fab_camera:
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+                startActivityForResult(intent, Constants.REQUEST_CAMERA);
+                break;
+            case R.id.fab_gallery:
+                intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, Constants.REQUEST_GALLERY);
+                break;
+            case R.id.main_floating_button:
+                mFloatingMenu.setVisibility(
+                        mFloatingMenu.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+                break;
+        }
+    }
+
+    public void findView() {
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_choosing_image);
+        mImageItems = new ArrayList<>();
+        mImageAdapter = new ImageAdapter(this, mImageItems);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
+        mImageAdapter.setOnItemClickListener(this);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
+        mRecyclerView.setAdapter(mImageAdapter);
+        mFloatingMenu = (LinearLayout) findViewById(R.id.floating_menu);
+        findViewById(R.id.fab_camera).setOnClickListener(this);
+        findViewById(R.id.fab_gallery).setOnClickListener(this);
+        findViewById(R.id.main_floating_button).setOnClickListener(this);
     }
 }

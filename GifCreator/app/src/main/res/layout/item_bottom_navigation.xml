@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/bottom_navigation_color"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/navigation_item"
+        android:layout_width="@dimen/bottom_navigation_item_width"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_navigation_item_background"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/navigation_item_image"
+            android:layout_width="@dimen/bottom_navigation_image_size"
+            android:layout_height="@dimen/bottom_navigation_image_size"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/common_size_10" />
+
+        <TextView
+            android:id="@+id/navigation_item_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/common_size_10"
+            android:layout_marginTop="@dimen/common_size_5"
+            android:textColor="@color/black"
+            android:textSize="@dimen/common_text_size_7" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/item_separator"
+        android:layout_width="@dimen/navigation_item_separator_size"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/common_size_7"
+        android:layout_marginTop="@dimen/common_size_7"
+        android:background="@color/black" />
+</LinearLayout>
