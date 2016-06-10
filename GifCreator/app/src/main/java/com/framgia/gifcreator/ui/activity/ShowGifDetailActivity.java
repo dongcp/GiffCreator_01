@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class ShowGifDetailActivity extends BaseActivity implements
         OnThumbnailPagerItemClickListener {
-
+    
     private final int OFF_SCREEN_PAGE_LIMIT = 3;
     private ImageView mLargeImage;
     private ViewPager mThumbnailPager;
