@@ -6,10 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.framgia.gifcreator.R;
-<<<<<<< HEAD
 import com.framgia.gifcreator.util.AppHelper;
-=======
->>>>>>> show list created gif
 
 /**
  * Created by yue on 28/06/2016.
