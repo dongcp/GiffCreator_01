@@ -39,7 +39,10 @@ public class Frame {
     }
 
     public void destroy() {
-        if (mFrame != null) mFrame.recycle();
+        if (mFrame != null) {
+            mFrame.recycle();
+            mFrame = null;
+        }
     }
 
     public void setStatus(boolean isChosen) {

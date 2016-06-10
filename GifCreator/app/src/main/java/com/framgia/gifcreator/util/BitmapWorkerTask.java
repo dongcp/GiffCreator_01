@@ -20,24 +20,29 @@ public class BitmapWorkerTask extends AsyncTask<Object, Void, Bitmap> {
     private Frame mFrame;
     private int mReqWidth;
     private int mReqHeight;
+    private boolean mCanChangeImage;
 
-    public BitmapWorkerTask(ImageView image, Frame frame) {
+    public BitmapWorkerTask(ImageView image, Frame frame, boolean canChangeImage) {
         mImage = new WeakReference<ImageView>(image);
         mFrame = frame;
+        mCanChangeImage = canChangeImage;
     }
 
-    public BitmapWorkerTask(ImageView image, Frame frame, int reqWidth, int reqHeight) {
+    public BitmapWorkerTask(ImageView image, Frame frame, int reqWidth, int reqHeight, boolean canChangeImage) {
         mImage = new WeakReference<ImageView>(image);
         mFrame = frame;
         mReqWidth = reqWidth;
         mReqHeight = reqHeight;
+        mCanChangeImage = canChangeImage;
     }
 
     @Override
     protected void onPreExecute() {
         ImageView image = mImage.get();
-        if (image.getWidth() != 0) mReqWidth = image.getWidth();
-        if (image.getHeight() != 0) mReqHeight = image.getHeight();
+        if (image != null) {
+            if (image.getWidth() != 0) mReqWidth = image.getWidth();
+            if (image.getHeight() != 0) mReqHeight = image.getHeight();
+        }
     }
 
     @Override
@@ -62,7 +67,7 @@ public class BitmapWorkerTask extends AsyncTask<Object, Void, Bitmap> {
     protected void onPostExecute(Bitmap bitmap) {
         if (mImage != null && bitmap != null) {
             ImageView image = mImage.get();
-            mFrame.setFrame(bitmap);
+            if (mFrame.getFrame() == null && mCanChangeImage) mFrame.setFrame(bitmap);
             if (image != null) image.setImageBitmap(bitmap);
         }
     }

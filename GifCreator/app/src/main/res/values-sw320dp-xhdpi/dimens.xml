@@ -11,6 +11,11 @@
     <dimen name="common_size_8">8dp</dimen>
     <dimen name="common_size_9">9dp</dimen>
     <dimen name="common_size_10">10dp</dimen>
+    <dimen name="common_size_11">11dp</dimen>
+    <dimen name="common_size_12">12dp</dimen>
+    <dimen name="common_size_13">13dp</dimen>
+    <dimen name="common_size_14">14dp</dimen>
+    <dimen name="common_size_15">15dp</dimen>
     <dimen name="common_size_20">20dp</dimen>
     <!--Common text size-->
     <dimen name="common_text_size_1">10sp</dimen>
@@ -32,4 +37,9 @@
     <dimen name="adjust_seek_bar_button_size">30dp</dimen>
     <dimen name="preview_gif_image_width">300dp</dimen>
     <dimen name="preview_gif_image_height">400dp</dimen>
+    <dimen name="thumbnail_width">250dp</dimen>
+    <dimen name="thumbnail_height">150dp</dimen>
+    <dimen name="large_image_height">260dp</dimen>
+    <dimen name="thumbnail_pager_height">150dp</dimen>
+    <dimen name="thumbnail_pager_padding_left">70dp</dimen>
 </resources>

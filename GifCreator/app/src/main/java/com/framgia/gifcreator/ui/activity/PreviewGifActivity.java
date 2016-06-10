@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.widget.AppCompatSeekBar;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -76,6 +77,40 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
         super.onBackPressed();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_edit_gif:
+                Intent intent = new Intent(this, ShowGifDetailActivity.class);
+                int size = mFrames.size();
+                String[] paths = new String[size];
+                for (int i = 0; i < size; i++) {
+                    paths[i] = mFrames.get(i).getPhotoPath();
+                }
+                intent.putExtra(Constants.EXTRA_PATHS_LIST, paths);
+                startActivityForResult(intent, Constants.REQUEST_ADJUST);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && data != null) {
+            if (requestCode == Constants.REQUEST_ADJUST) {
+                String[] photoPaths = data.getStringArrayExtra(Constants.EXTRA_PATHS_LIST);
+                int size = photoPaths.length;
+                if (size > 0) {
+                    mFrames.clear();
+                    for (int i = 0; i < size; i++) {
+                        mFrames.add(new Frame(photoPaths[i]));
+                    }
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     private void findViews() {
         mImagePreviewGif = (ImageView) findViewById(R.id.image_preview_gif);
         mTextFps = (TextView) findViewById(R.id.text_fps);
@@ -102,7 +137,8 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
                 } else {
                     BitmapWorkerTask task = new BitmapWorkerTask(mImagePreviewGif, mFrames.get(mCount),
                             getResources().getDimensionPixelSize(R.dimen.preview_gif_image_width),
-                            getResources().getDimensionPixelSize(R.dimen.preview_gif_image_height));
+                            getResources().getDimensionPixelSize(R.dimen.preview_gif_image_height),
+                            true);
                     task.execute(BitmapWorkerTask.TASK_DECODE_FILE,
                             mFrames.get(mCount).getPhotoPath());
                 }

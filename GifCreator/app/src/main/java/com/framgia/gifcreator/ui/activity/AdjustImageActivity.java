@@ -48,7 +48,7 @@ public class AdjustImageActivity extends BaseActivity implements
                     @Override
                     public void onGlobalLayout() {
                         if (mIsFirst) {
-                            BitmapWorkerTask worker = new BitmapWorkerTask(mAdjustImage, mFrame);
+                            BitmapWorkerTask worker = new BitmapWorkerTask(mAdjustImage, mFrame, true);
                             worker.execute(BitmapWorkerTask.TASK_DECODE_FILE, mFrame.getPhotoPath());
                             mIsFirst = false;
                         }

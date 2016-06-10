@@ -16,6 +16,7 @@
     <string name="bottom_navigation_item_color">Color</string>
     <string name="bottom_navigation_item_crop">Crop</string>
     <string name="bottom_navigation_item_orientation">Orientation</string>
+    <string name="action_edit_image">Edit image</string>
     <string name="bottom_navigation_main_item_adjust">Adjust</string>
     <string name="bottom_navigation_main_item_effect">Effect</string>
     <string name="bottom_navigation_main_item_color">Color</string>
@@ -32,4 +33,17 @@
     <string name="fab_camera">Get photo from camera</string>
     <string name="fab_gallery">Get photo from gallery</string>
     <string name="choosing_image">Choosing image</string>
+    <string name="button_ok">Ok</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="facebook">Facebook</string>
+    <string name="title_dialog_get_photo_options">You want to get photo from</string>
+    <string name="long_press_feature">Long-press a thumbnail to add an image</string>
+    <string name="press_thumbnail">Press a thumbnail to display at larger size</string>
+    <string-array name="choose_image">
+        <item>Get photo from camera</item>
+        <item>Get photo from gallery</item>
+        <item>Get photo from facebook</item>
+    </string-array>
 </resources>
