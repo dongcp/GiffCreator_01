@@ -7,9 +7,11 @@
     <string name="fab_gallery">Get photo from gallery</string>
     <string name="choosing_image">Choosing image</string>
     <string name="action_sending_images">Sending images</string>
-    <string name="bottom_navigation_item_adjust">Adjust</string>
-    <string name="bottom_navigation_item_effect">Effect</string>
-    <string name="bottom_navigation_item_color">Color</string>
-    <string name="bottom_navigation_item_crop">Crop</string>
-    <string name="bottom_navigation_item_orientation">Orientation</string>
+    <string name="bottom_navigation_main_item_adjust">Adjust</string>
+    <string name="bottom_navigation_main_item_effect">Effect</string>
+    <string name="bottom_navigation_main_item_color">Color</string>
+    <string name="bottom_navigation_main_item_crop">Crop</string>
+    <string name="bottom_navigation_main_item_orientation">Orientation</string>
+    <string name="bottom_navigation_adjust_item_blur">Blur</string>
+    <string name="bottom_navigation_adjust_item_contrast">Contrast</string>
 </resources>
