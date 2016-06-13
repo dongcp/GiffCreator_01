@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/floating_button_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/floating_button_text_background"
+        android:elevation="@dimen/common_size_3"
+        android:paddingBottom="@dimen/common_size_3"
+        android:paddingLeft="@dimen/common_size_5"
+        android:paddingRight="@dimen/common_size_5"
+        android:paddingTop="@dimen/common_size_3"
+        android:textColor="@color/black"
+        android:textSize="@dimen/common_text_size_8"
+        android:translationZ="@dimen/common_size_3" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floating_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/common_size_10"
+        app:fabSize="mini" />
+</merge>
