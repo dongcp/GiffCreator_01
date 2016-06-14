@@ -5,4 +5,6 @@
     <string name="fab_facebook">Get photo from facebook</string>
     <string name="fab_camera">Get photo from camera</string>
     <string name="fab_gallery">Get photo from gallery</string>
+    <string name="choosing_image">Choosing image</string>
+    <string name="action_sending_images">Sending images</string>
 </resources>

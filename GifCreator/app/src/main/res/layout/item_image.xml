@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/image_choosing"
+        android:layout_width="@dimen/image_item_width"
+        android:layout_height="@dimen/image_item_height"
+        android:layout_margin="@dimen/image_item_space" />
+
+    <ImageView
+        android:id="@+id/image_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_cancel" />
+</FrameLayout>
