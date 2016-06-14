@@ -21,4 +21,8 @@
     <dimen name="common_text_size_9">18sp</dimen>
     <dimen name="common_text_size_10">19sp</dimen>
     <dimen name="common_text_size_11">20sp</dimen>
+    <dimen name="image_item_width">150dp</dimen>
+    <dimen name="image_item_height">150dp</dimen>
+    <dimen name="bottom_navigation_item_width">80dp</dimen>
+    <dimen name="bottom_navigation_image_size">35dp</dimen>
 </resources>

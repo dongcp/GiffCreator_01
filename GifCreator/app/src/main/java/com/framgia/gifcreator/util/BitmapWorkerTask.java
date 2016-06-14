@@ -21,11 +21,17 @@ public class BitmapWorkerTask extends AsyncTask<Object, Void, Bitmap> {
         mImage = new WeakReference<ImageView>(image);
     }
 
+    public BitmapWorkerTask(ImageView image, int reqWidth, int reqHeight) {
+        mImage = new WeakReference<ImageView>(image);
+        mReqWidth = reqWidth;
+        mReqHeight = reqHeight;
+    }
+
     @Override
     protected void onPreExecute() {
         ImageView image = mImage.get();
-        mReqWidth = image.getWidth();
-        mReqHeight = image.getHeight();
+        if (image.getWidth() != 0) mReqWidth = image.getWidth();
+        if (image.getHeight() != 0) mReqHeight = image.getHeight();
     }
 
     @Override
