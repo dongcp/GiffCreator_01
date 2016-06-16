@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/toolbar" />
+
+    <ImageView
+        android:id="@+id/image_preview_gif"
+        android:layout_width="@dimen/preview_gif_image_width"
+        android:layout_height="@dimen/preview_gif_image_height"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/common_size_20"
+        android:layout_marginTop="@dimen/common_size_10" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="@dimen/common_size_10"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_fps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/common_size_10"
+            android:padding="@dimen/common_size_5"
+            android:text="@string/fps"
+            android:textColor="@color/black"
+            android:textSize="@dimen/common_text_size_9" />
+
+        <android.support.v7.widget.AppCompatSeekBar
+            android:id="@+id/seek_bar_adjust_fps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/common_size_10"
+            android:layout_marginRight="@dimen/common_size_10"
+            android:padding="@dimen/common_size_10" />
+    </LinearLayout>
+</FrameLayout>

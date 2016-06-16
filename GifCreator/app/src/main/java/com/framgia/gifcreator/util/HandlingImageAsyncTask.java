@@ -6,14 +6,14 @@ import android.os.AsyncTask;
 
 import com.framgia.gifcreator.effect.EditingEffect;
 
-public class HandlingImageAsynctask extends AsyncTask<Void, Void, Void> {
+public class HandlingImageAsyncTask extends AsyncTask<Void, Void, Void> {
 
     private Bitmap mBaseBitmap;
     private EditingEffect mEditingEffect;
     private ProgressDialog mProgressDialog;
     private OnProgressListener mOnProgressListener;
 
-    public HandlingImageAsynctask(EditingEffect mEditingEffect, Bitmap mBaseBitmap, ProgressDialog mProgressDialog) {
+    public HandlingImageAsyncTask(EditingEffect mEditingEffect, Bitmap mBaseBitmap, ProgressDialog mProgressDialog) {
         this.mEditingEffect = mEditingEffect;
         this.mBaseBitmap = mBaseBitmap;
         this.mProgressDialog = mProgressDialog;

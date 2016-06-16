@@ -1,13 +1,21 @@
 <resources>
     <string name="app_name">GifCreator</string>
+    <!--Title-->
     <string name="title_adjust_image_activity">Adjust Image</string>
+    <string name="title_show_chosen_images_activity">Chosen Images</string>
+    <string name="title_preview_gif_activity">Preview Gif</string>
+    <string name="action_make_gif">Make Gif</string>
+    <string name="action_preview_gif">Preview Gif</string>
+    <string name="action_edit_gif">Edit</string>
     <string name="action_settings">Settings</string>
-    <string name="button_gallery">Image Gallery</string>
-    <string name="fab_facebook">Get photo from facebook</string>
-    <string name="fab_camera">Get photo from camera</string>
-    <string name="fab_gallery">Get photo from gallery</string>
-    <string name="choosing_image">Choosing image</string>
     <string name="action_sending_images">Sending images</string>
+    <string name="action_apply_effect">Apply</string>
+    <!--Bottom navigation items-->
+    <string name="bottom_navigation_item_adjust">Adjust</string>
+    <string name="bottom_navigation_item_effect">Effect</string>
+    <string name="bottom_navigation_item_color">Color</string>
+    <string name="bottom_navigation_item_crop">Crop</string>
+    <string name="bottom_navigation_item_orientation">Orientation</string>
     <string name="bottom_navigation_main_item_adjust">Adjust</string>
     <string name="bottom_navigation_main_item_effect">Effect</string>
     <string name="bottom_navigation_main_item_color">Color</string>
@@ -15,5 +23,13 @@
     <string name="bottom_navigation_main_item_orientation">Orientation</string>
     <string name="bottom_navigation_adjust_item_blur">Blur</string>
     <string name="bottom_navigation_adjust_item_contrast">Contrast</string>
-    <string name="action_apply_effect">Apply</string>
+    <!--Others-->
+    <string name="warning_make_gif">You must choose at least 2 frames</string>
+    <string name="out_of_limit">You have selected the maximum frames</string>
+    <string name="fps">fps: {0} frames/sec</string>
+    <string name="button_gallery">Image Gallery</string>
+    <string name="fab_facebook">Get photo from facebook</string>
+    <string name="fab_camera">Get photo from camera</string>
+    <string name="fab_gallery">Get photo from gallery</string>
+    <string name="choosing_image">Choosing image</string>
 </resources>

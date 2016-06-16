@@ -17,6 +17,11 @@ public class Frame {
         mPhotoPath = photoPath;
     }
 
+    public Frame(String photoPath, Bitmap frame) {
+        mPhotoPath = photoPath;
+        mFrame = frame;
+    }
+
     public void setPhotoPath(String photoPath) {
         mPhotoPath = photoPath;
     }
