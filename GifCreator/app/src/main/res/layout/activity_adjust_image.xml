@@ -11,28 +11,27 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/bottom_area"
-        android:layout_below="@+id/adjust_image_bar"
-        android:layout_margin="@dimen/common_size_20"
-        android:scaleType="fitXY" />
-
-    <com.framgia.gifcreator.ui.widget.AdjustImageBar
-        android:id="@+id/adjust_image_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar"
-        android:visibility="invisible" />
+        android:layout_margin="@dimen/common_size_20"/>
 
-    <RelativeLayout
+    <FrameLayout
         android:id="@+id/bottom_area"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
 
+        <com.framgia.gifcreator.ui.widget.AdjustImageBar
+            android:id="@+id/adjust_image_bar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/bottom_navigation_color"
+            android:gravity="center"
+            android:visibility="visible" />
+
         <HorizontalScrollView
             android:id="@+id/horizontal_scroll_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none">
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:id="@+id/bottom_navigation_container"
@@ -40,5 +39,38 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal" />
         </HorizontalScrollView>
-    </RelativeLayout>
+    </FrameLayout>
+
+    <!--<RelativeLayout-->
+    <!--android:id="@+id/bottom_area"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignParentBottom="true">-->
+
+    <!--<HorizontalScrollView-->
+    <!--android:id="@+id/horizontal_scroll_view"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:scrollbars="none">-->
+
+    <!--<FrameLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content">-->
+
+    <!--<com.framgia.gifcreator.ui.widget.AdjustImageBar-->
+    <!--android:id="@+id/adjust_image_bar"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:background="@color/bottom_navigation_color"-->
+    <!--android:gravity="center"-->
+    <!--android:visibility="visible" />-->
+
+    <!--<LinearLayout-->
+    <!--android:id="@+id/bottom_navigation_container"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:orientation="horizontal" />-->
+    <!--</FrameLayout>-->
+    <!--</HorizontalScrollView>-->
+    <!--</RelativeLayout>-->
 </RelativeLayout>

@@ -63,7 +63,7 @@
         <item>Delete</item>
     </string-array>
     <string name="no_item">There is no item yet</string>
-    <string name="bottom_navigation_adjust_item_grayscale">Gray Scale</string>
+    <string name="bottom_navigation_adjust_item_gray_scale">Gray Scale</string>
     <string name="bottom_navigation_adjust_item_negative">Negative</string>
     <string name="loading_effect">Loading Effect</string>
     <string name="error">Error</string>

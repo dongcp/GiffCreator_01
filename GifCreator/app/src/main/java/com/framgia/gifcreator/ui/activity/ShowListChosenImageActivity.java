@@ -17,8 +17,8 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
 import com.framgia.gifcreator.R;
+
 import com.framgia.gifcreator.adapter.ImageAdapter;
 import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Frame;
