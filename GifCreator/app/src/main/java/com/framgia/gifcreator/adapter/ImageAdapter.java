@@ -8,8 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.framgia.gifcreator.R;
-import com.framgia.gifcreator.data.Constants;
-import com.framgia.gifcreator.data.ImageItem;
+import com.framgia.gifcreator.data.Frame;
 import com.framgia.gifcreator.util.BitmapWorkerTask;
 
 import java.util.ArrayList;
@@ -18,13 +17,13 @@ import java.util.ArrayList;
  * Created by VULAN on 6/6/2016.
  */
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
-    private ArrayList<ImageItem> mListImage;
+    private ArrayList<Frame> mFrames;
     private Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public ImageAdapter(Context mContext, ArrayList<ImageItem> mListImage) {
-        this.mListImage = mListImage;
-        this.mContext = mContext;
+    public ImageAdapter(Context context, ArrayList<Frame> frames) {
+        mContext = context;
+        mFrames = frames;
     }
 
     @Override
@@ -35,25 +34,25 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
-        final ImageItem imageItem = mListImage.get(position);
+    public void onBindViewHolder(ViewHolder holder, final int position) {
+        final Frame frame = mFrames.get(position);
         BitmapWorkerTask decodeFileTask = new BitmapWorkerTask(holder.mImageView,
                 mContext.getResources().getDimensionPixelSize(R.dimen.image_item_width),
                 mContext.getResources().getDimensionPixelSize(R.dimen.image_item_height));
-        switch (imageItem.getRequestCode()) {
-            case Constants.REQUEST_GALLERY:
-                decodeFileTask.execute(BitmapWorkerTask.TASK_DECODE_FILE, imageItem.getImagePath());
-                break;
-            case Constants.REQUEST_CAMERA:
-                decodeFileTask.execute(BitmapWorkerTask.TASK_DECODE_BITMAP, imageItem.getImage());
-                break;
-        }
+        decodeFileTask.execute(BitmapWorkerTask.TASK_DECODE_FILE, frame.getPhotoPath());
         holder.mImageRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mOnItemClickListener != null) {
-                    holder.mImageRemove.setVisibility(View.VISIBLE);
                     mOnItemClickListener.onRemoveItem(position);
+                }
+            }
+        });
+        holder.mImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onPhotoChoose(position);
                 }
             }
         });
@@ -61,11 +60,17 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return mListImage.size() > 0 ? mListImage.size() : 0;
+        return mFrames == null ? 0 : mFrames.size();
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.mOnItemClickListener = onItemClickListener;
+    }
+
+    public interface OnItemClickListener {
+        void onRemoveItem(int position);
+
+        void onPhotoChoose(int position);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -77,9 +82,5 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             mImageView = (ImageView) itemView.findViewById(R.id.image_choosing);
             mImageRemove = (ImageView) itemView.findViewById(R.id.image_remove);
         }
-    }
-
-    public interface OnItemClickListener {
-        void onRemoveItem(int position);
     }
 }

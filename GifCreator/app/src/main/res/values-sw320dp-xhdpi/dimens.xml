@@ -10,6 +10,7 @@
     <dimen name="common_size_8">8dp</dimen>
     <dimen name="common_size_9">9dp</dimen>
     <dimen name="common_size_10">10dp</dimen>
+    <dimen name="common_size_20">20dp</dimen>
     <dimen name="common_text_size_1">10sp</dimen>
     <dimen name="common_text_size_2">11sp</dimen>
     <dimen name="common_text_size_3">12sp</dimen>
