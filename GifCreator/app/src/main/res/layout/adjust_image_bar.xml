@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        android:id="@+id/button_cancel"
+        android:layout_width="@dimen/adjust_seek_bar_button_size"
+        android:layout_height="@dimen/adjust_seek_bar_button_size"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/common_size_5"
+        android:padding="@dimen/common_size_5"
+        android:src="@drawable/ic_cancel" />
+
+    <SeekBar
+        android:id="@+id/adjust_seek_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/button_complete"
+        android:layout_toRightOf="@+id/button_cancel" />
+
+    <ImageView
+        android:id="@+id/button_complete"
+        android:layout_width="@dimen/adjust_seek_bar_button_size"
+        android:layout_height="@dimen/adjust_seek_bar_button_size"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/common_size_5"
+        android:padding="@dimen/common_size_5"/>
+</merge>

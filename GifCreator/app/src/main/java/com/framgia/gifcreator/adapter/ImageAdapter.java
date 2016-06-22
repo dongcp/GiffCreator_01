@@ -36,7 +36,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         final Frame frame = mFrames.get(position);
-        BitmapWorkerTask decodeFileTask = new BitmapWorkerTask(holder.mImageView,
+        BitmapWorkerTask decodeFileTask = new BitmapWorkerTask(holder.mImageView, frame,
                 mContext.getResources().getDimensionPixelSize(R.dimen.image_item_width),
                 mContext.getResources().getDimensionPixelSize(R.dimen.image_item_height));
         decodeFileTask.execute(BitmapWorkerTask.TASK_DECODE_FILE, frame.getPhotoPath());

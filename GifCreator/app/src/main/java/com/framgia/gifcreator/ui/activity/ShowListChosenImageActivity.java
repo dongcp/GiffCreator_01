@@ -9,6 +9,8 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -16,18 +18,15 @@ import com.framgia.gifcreator.R;
 import com.framgia.gifcreator.adapter.ImageAdapter;
 import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Frame;
+import com.framgia.gifcreator.util.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class ShowListChosenImageActivity extends AppCompatActivity implements ImageAdapter.OnItemClickListener,
         View.OnClickListener {
 
-    private final String DATE_FORMAT = "yyyyMMdd_HHmmss";
-    private final String IMAGE_NAME_PREFIX = "IMG";
     private final String IMAGE_EXTENSION = ".jpg";
     private ImageAdapter mImageAdapter;
     private RecyclerView mRecyclerView;
@@ -88,7 +87,8 @@ public class ShowListChosenImageActivity extends AppCompatActivity implements Im
                 case Constants.REQUEST_GALLERY:
                     Uri selectedImg = data.getData();
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                    Cursor cursor = getContentResolver().query(selectedImg, filePathColumn, null, null, null);
+                    Cursor cursor = getContentResolver().query(
+                            selectedImg, filePathColumn, null, null, null);
                     cursor.moveToFirst();
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String imgDecodeString = cursor.getString(columnIndex);
@@ -96,6 +96,15 @@ public class ShowListChosenImageActivity extends AppCompatActivity implements Im
                     frame = new Frame(imgDecodeString);
                     mFrames.add(frame);
                     mImageAdapter.notifyItemInserted(mFrames.indexOf(frame));
+                    break;
+                case Constants.REQUEST_ADJUST:
+                    int position = data.getIntExtra(Constants.EXTRA_POSITION, 0);
+                    String photoPath = data.getStringExtra(Constants.EXTRA_PHOTO_PATH);
+                    if (!TextUtils.isEmpty(photoPath)) {
+                        mFrames.get(position).destroy();
+                        mFrames.get(position).setPhotoPath(photoPath);
+                    }
+                    mImageAdapter.notifyItemChanged(position);
                     break;
             }
         }
@@ -112,7 +121,7 @@ public class ShowListChosenImageActivity extends AppCompatActivity implements Im
         Intent intent = new Intent(ShowListChosenImageActivity.this, AdjustImageActivity.class);
         intent.putExtra(Constants.EXTRA_PHOTO_PATH, mFrames.get(position).getPhotoPath());
         intent.putExtra(Constants.EXTRA_POSITION, position);
-        startActivity(intent);
+        startActivityForResult(intent, Constants.REQUEST_ADJUST);
     }
 
     @Override
@@ -153,8 +162,7 @@ public class ShowListChosenImageActivity extends AppCompatActivity implements Im
     }
 
     private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat(DATE_FORMAT).format(new Date());
-        String imageFileName = IMAGE_NAME_PREFIX + timeStamp;
+        String imageFileName = FileUtil.getImageName();
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, IMAGE_EXTENSION, storageDir);
         mCurrentPhotoPath = image.getAbsolutePath();

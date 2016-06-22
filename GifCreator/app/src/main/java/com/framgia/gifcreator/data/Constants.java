@@ -9,4 +9,5 @@ public class Constants {
     public final static String EXTRA_POSITION = "position";
     public final static int REQUEST_CAMERA = 1;
     public final static int REQUEST_GALLERY = 2;
+    public final static int REQUEST_ADJUST = 3;
 }
