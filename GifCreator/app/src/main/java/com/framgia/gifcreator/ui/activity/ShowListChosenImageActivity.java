@@ -1,5 +1,6 @@
 package com.framgia.gifcreator.ui.activity;
 
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -25,17 +26,21 @@ import com.framgia.gifcreator.util.FileUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
-public class ShowListChosenImageActivity extends BaseActivity implements
-        ImageAdapter.OnItemClickListener, View.OnClickListener {
+public class ShowListChosenImageActivity extends BaseActivity implements ImageAdapter.OnItemClickListener,
+        View.OnClickListener {
+
 
     private final String IMAGE_EXTENSION = ".jpg";
     private ImageAdapter mImageAdapter;
     private RecyclerView mRecyclerView;
     private LinearLayout mFloatingMenu;
     private CoordinatorLayout mCoordinatorLayout;
-    private ArrayList<Frame> mFrames;
+    private List<Frame> mFrames;
     private String mCurrentPhotoPath;
+    public static final int MIN_SIZE = 2;
+    public static final int MAX_SIZE = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +48,10 @@ public class ShowListChosenImageActivity extends BaseActivity implements
         findViews();
         // Setup recycler view
         mFrames = new ArrayList<>();
-        mImageAdapter = new ImageAdapter(this, mFrames);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(gridLayoutManager);
+        mFrames.addAll(getImageListGallery());
+        mImageAdapter = new ImageAdapter(this, mFrames);
         mRecyclerView.setAdapter(mImageAdapter);
         mImageAdapter.setOnItemClickListener(this);
         // Call activity to get photo
@@ -68,9 +74,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                     }
                     break;
                 case Constants.REQUEST_GALLERY:
-                    getPhotoIntent = new Intent(Intent.ACTION_PICK,
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(getPhotoIntent, Constants.REQUEST_GALLERY);
+                    refresh(getImageListGallery());
                     break;
             }
         }
@@ -87,6 +91,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
     }
 
     @Override
+
     protected String getActivityTitle() {
         return getString(R.string.title_show_chosen_images_activity);
     }
@@ -127,11 +132,31 @@ public class ShowListChosenImageActivity extends BaseActivity implements
         }
     }
 
+    private List<Frame> getImageListGallery() {
+        List<Frame> imageItems = new ArrayList<>();
+        CursorLoader imageLoader = new CursorLoader(this,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA},
+                null,
+                null,
+                MediaStore.Images.Media._ID);
+        Cursor imageCursor = imageLoader.loadInBackground();
+        if (imageCursor.moveToLast()) {
+            do {
+                String imagePath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                Frame frame = new Frame(imagePath);
+                imageItems.add(frame);
+            } while (imageCursor.moveToPrevious());
+        }
+        imageCursor.close();
+        return imageItems;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_preview_gif:
-                if (mFrames.size() < 2) {
+                if (mFrames.size() < MIN_SIZE) {
                     Snackbar.make(mCoordinatorLayout,
                             getString(R.string.warning_make_gif), Snackbar.LENGTH_SHORT).show();
                 } else {
@@ -143,6 +168,21 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                     }
                     intent.putExtra(Constants.EXTRA_PATHS_LIST, paths);
                     startActivity(intent);
+                }
+                break;
+            case R.id.action_open_list_all:
+                if (getImageListGallery().size() != mFrames.size()) {
+                    refresh(getImageListGallery());
+                } else {
+                    mImageAdapter.notifyDataSetChanged();
+                }
+                break;
+            case R.id.action_open_list_chosen:
+                if (getChosenList().size() > MAX_SIZE) {
+                    Snackbar.make(mCoordinatorLayout,
+                            getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
+                } else {
+                    refresh(getChosenList());
                 }
                 break;
         }
@@ -187,14 +227,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                 }
                 break;
             case R.id.fab_gallery:
-                if (mFrames.size() == 10) {
-                    Snackbar.make(mCoordinatorLayout,
-                            getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
-                } else {
-                    Intent intent = new Intent(Intent.ACTION_PICK,
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(intent, Constants.REQUEST_GALLERY);
-                }
+                refresh(getImageListGallery());
                 break;
             case R.id.main_floating_button:
                 mFloatingMenu.setVisibility(
@@ -226,5 +259,22 @@ public class ShowListChosenImageActivity extends BaseActivity implements
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
+    }
+
+    private List<Frame> getChosenList() {
+        List<Frame> chosenList = new ArrayList<>();
+        int length = mFrames.size();
+        for (int i = 0; i < length; i++) {
+            if (mFrames.get(i).isChosen()) {
+                chosenList.add(mFrames.get(i));
+            }
+        }
+        return chosenList;
+    }
+
+    public void refresh(List<Frame> frames) {
+        mFrames.clear();
+        mFrames.addAll(frames);
+        mImageAdapter.notifyDataSetChanged();
     }
 }
