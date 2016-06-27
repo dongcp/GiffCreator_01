@@ -22,6 +22,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.activity.ShowListChosenImageActivity" />
-        <activity android:name=".ui.activity.AdjustImageActivity"></activity>
+        <activity android:name=".ui.activity.AdjustImageActivity" />
+        <activity android:name=".ui.activity.PreviewGifActivity"></activity>
     </application>
+
 </manifest>

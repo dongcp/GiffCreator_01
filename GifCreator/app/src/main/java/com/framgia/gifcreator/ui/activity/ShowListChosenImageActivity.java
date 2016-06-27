@@ -6,11 +6,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v7.app.AppCompatActivity;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -18,26 +19,27 @@ import com.framgia.gifcreator.R;
 import com.framgia.gifcreator.adapter.ImageAdapter;
 import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Frame;
+import com.framgia.gifcreator.ui.base.BaseActivity;
 import com.framgia.gifcreator.util.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class ShowListChosenImageActivity extends AppCompatActivity implements ImageAdapter.OnItemClickListener,
-        View.OnClickListener {
+public class ShowListChosenImageActivity extends BaseActivity implements
+        ImageAdapter.OnItemClickListener, View.OnClickListener {
 
     private final String IMAGE_EXTENSION = ".jpg";
     private ImageAdapter mImageAdapter;
     private RecyclerView mRecyclerView;
     private LinearLayout mFloatingMenu;
+    private CoordinatorLayout mCoordinatorLayout;
     private ArrayList<Frame> mFrames;
     private String mCurrentPhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_choosing_image);
         findViews();
         // Setup recycler view
         mFrames = new ArrayList<>();
@@ -75,6 +77,21 @@ public class ShowListChosenImageActivity extends AppCompatActivity implements Im
     }
 
     @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_choosing_image;
+    }
+
+    @Override
+    protected int getMenuResId() {
+        return R.menu.menu_chosen_image;
+    }
+
+    @Override
+    protected String getActivityTitle() {
+        return getString(R.string.title_show_chosen_images_activity);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
@@ -90,8 +107,8 @@ public class ShowListChosenImageActivity extends AppCompatActivity implements Im
                     Cursor cursor = getContentResolver().query(
                             selectedImg, filePathColumn, null, null, null);
                     cursor.moveToFirst();
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String imgDecodeString = cursor.getString(columnIndex);
+                    String imgDecodeString = cursor.
+                            getString(cursor.getColumnIndex(filePathColumn[0]));
                     cursor.close();
                     frame = new Frame(imgDecodeString);
                     mFrames.add(frame);
@@ -108,6 +125,28 @@ public class ShowListChosenImageActivity extends AppCompatActivity implements Im
                     break;
             }
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_preview_gif:
+                if (mFrames.size() < 2) {
+                    Snackbar.make(mCoordinatorLayout,
+                            getString(R.string.warning_make_gif), Snackbar.LENGTH_SHORT).show();
+                } else {
+                    Intent intent = new Intent(this, PreviewGifActivity.class);
+                    int size = mFrames.size();
+                    String[] paths = new String[size];
+                    for (int i = 0; i < size; i++) {
+                        paths[i] = mFrames.get(i).getPhotoPath();
+                    }
+                    intent.putExtra(Constants.EXTRA_PATHS_LIST, paths);
+                    startActivity(intent);
+                }
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -128,23 +167,34 @@ public class ShowListChosenImageActivity extends AppCompatActivity implements Im
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fab_camera:
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (intent.resolveActivity(getPackageManager()) != null) {
-                    File photoFile = null;
-                    try {
-                        photoFile = createImageFile();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if (photoFile != null) {
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                        startActivityForResult(intent, Constants.REQUEST_CAMERA);
+                if (mFrames.size() == Constants.MAXIMUM_FRAMES) {
+                    Snackbar.make(mCoordinatorLayout,
+                            getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
+                } else {
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (intent.resolveActivity(getPackageManager()) != null) {
+                        File photoFile = null;
+                        try {
+                            photoFile = createImageFile();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (photoFile != null) {
+                            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                            startActivityForResult(intent, Constants.REQUEST_CAMERA);
+                        }
                     }
                 }
                 break;
             case R.id.fab_gallery:
-                intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, Constants.REQUEST_GALLERY);
+                if (mFrames.size() == 10) {
+                    Snackbar.make(mCoordinatorLayout,
+                            getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_PICK,
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(intent, Constants.REQUEST_GALLERY);
+                }
                 break;
             case R.id.main_floating_button:
                 mFloatingMenu.setVisibility(
@@ -156,6 +206,7 @@ public class ShowListChosenImageActivity extends AppCompatActivity implements Im
     private void findViews() {
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_choosing_image);
         mFloatingMenu = (LinearLayout) findViewById(R.id.floating_menu);
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         findViewById(R.id.fab_camera).setOnClickListener(this);
         findViewById(R.id.fab_gallery).setOnClickListener(this);
         findViewById(R.id.main_floating_button).setOnClickListener(this);

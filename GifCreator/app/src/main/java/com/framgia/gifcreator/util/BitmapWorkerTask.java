@@ -44,10 +44,12 @@ public class BitmapWorkerTask extends AsyncTask<Object, Void, Bitmap> {
     protected Bitmap doInBackground(Object... params) {
         switch ((int) params[0]) {
             case TASK_DECODE_FILE:
-                return BitmapHelper.decodeFile((String) params[1], mReqWidth, mReqHeight);
+                return mFrame.getFrame() != null ? mFrame.getFrame() :
+                        BitmapHelper.decodeFile((String) params[1], mReqWidth, mReqHeight);
             case TASK_RESIZE_BITMAP:
                 try {
-                    return BitmapHelper.resizeBitmap((Bitmap) params[1], mReqWidth, mReqHeight);
+                    return mFrame.getFrame() != null ? mFrame.getFrame() :
+                            BitmapHelper.resizeBitmap((Bitmap) params[1], mReqWidth, mReqHeight);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

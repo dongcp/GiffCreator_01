@@ -2,22 +2,26 @@ package com.framgia.gifcreator.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import com.framgia.gifcreator.R;
 import com.framgia.gifcreator.data.Constants;
+import com.framgia.gifcreator.ui.base.BaseActivity;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private LinearLayout mFloatingMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         findViews();
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_main;
     }
 
     @Override
