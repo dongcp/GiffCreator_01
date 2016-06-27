@@ -14,6 +14,7 @@ import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Frame;
 import com.framgia.gifcreator.ui.base.BaseActivity;
 import com.framgia.gifcreator.util.BitmapWorkerTask;
+import com.framgia.gifcreator.util.MakingGifTask;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -90,6 +91,15 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
                 }
                 intent.putExtra(Constants.EXTRA_PATHS_LIST, paths);
                 startActivityForResult(intent, Constants.REQUEST_ADJUST);
+                break;
+            case R.id.action_make_gif:
+                MakingGifTask makingGifTask = new MakingGifTask(this, mSeekBarAdjustFps.getProgress() + 1);
+                size = mFrames.size();
+                String[] photoPaths = new String[size];
+                for (int i = 0; i < size; i++) {
+                    photoPaths[i] = mFrames.get(i).getPhotoPath();
+                }
+                makingGifTask.execute(photoPaths);
                 break;
         }
         return super.onOptionsItemSelected(item);
