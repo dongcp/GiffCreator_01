@@ -9,7 +9,7 @@ public class Frame {
 
     private String mPhotoPath;
     private Bitmap mFrame;
-
+    private boolean mIsChosen;
     public Frame() {
     }
 
@@ -40,5 +40,13 @@ public class Frame {
 
     public void destroy() {
         if (mFrame != null) mFrame.recycle();
+    }
+
+    public void setStatus(boolean isChosen) {
+        this.mIsChosen = isChosen;
+    }
+
+    public boolean isChosen() {
+        return mIsChosen;
     }
 }

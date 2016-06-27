@@ -8,7 +8,7 @@
     <string name="action_preview_gif">Preview Gif</string>
     <string name="action_edit_gif">Edit</string>
     <string name="action_settings">Settings</string>
-    <string name="action_sending_images">Sending images</string>
+    <string name="action_chosen_list">Chosen List</string>
     <string name="action_apply_effect">Apply</string>
     <!--Bottom navigation items-->
     <string name="bottom_navigation_item_adjust">Adjust</string>
