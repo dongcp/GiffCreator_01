@@ -19,6 +19,7 @@ import com.framgia.gifcreator.util.ImageProcessing;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class AdjustImageActivity extends BaseActivity implements
         BottomNavigationItem.OnBottomNavigationItemClickListener {
@@ -29,8 +30,8 @@ public class AdjustImageActivity extends BaseActivity implements
     private LinearLayout mBottomNavigationContainer;
     private Frame mFrame;
     private Bitmap mProcessedImage;
-    private ArrayList<BottomNavigationItem> mBottomNavigationMainItems;
-    private ArrayList<BottomNavigationItem> mBottomNavigationAdjustItems;
+    private List<BottomNavigationItem> mBottomNavigationMainItems;
+    private List<BottomNavigationItem> mBottomNavigationAdjustItems;
     private int mBottomNavigationLevel;
     private int mPosition;
     private boolean mIsFirst;
@@ -176,7 +177,7 @@ public class AdjustImageActivity extends BaseActivity implements
         }
     }
 
-    private void makeBottomNavigation(ArrayList<BottomNavigationItem> bottomNavigationItems) {
+    private void makeBottomNavigation(List<BottomNavigationItem> bottomNavigationItems) {
         mBottomNavigationContainer.removeAllViews();
         final int size = bottomNavigationItems.size();
         for (int i = 0; i < size; i++) {

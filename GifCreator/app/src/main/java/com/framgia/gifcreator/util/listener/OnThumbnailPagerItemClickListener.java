@@ -1,7 +1,5 @@
 package com.framgia.gifcreator.util.listener;
 
-import android.graphics.Bitmap;
-
 /**
  * Created by yue on 13/06/2016.
  */

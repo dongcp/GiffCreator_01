@@ -19,6 +19,7 @@ import java.util.List;
  * Created by VULAN on 6/6/2016.
  */
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
+
     private List<Frame> mFrames;
     private Context mContext;
     private OnItemClickListener mOnItemClickListener;
@@ -32,8 +33,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView;
-        itemView = LayoutInflater.from(mContext).inflate(R.layout.item_image, parent, false);
+        View itemView = LayoutInflater.from(mContext).inflate(R.layout.item_image, parent, false);
         return new ViewHolder(itemView);
     }
 

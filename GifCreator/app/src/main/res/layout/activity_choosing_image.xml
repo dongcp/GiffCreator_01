@@ -61,10 +61,12 @@
         </LinearLayout>
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/main_floating_button"
+            android:id="@+id/floating_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="@dimen/common_size_15"
+            android:layout_marginRight="@dimen/common_size_15"
             android:src="@drawable/ic_plus" />
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>
