@@ -60,7 +60,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
             switch (intent.getIntExtra(Constants.EXTRA_REQUEST, Constants.REQUEST_GALLERY)) {
                 case Constants.REQUEST_CAMERA:
                     Intent getPhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    if (intent.resolveActivity(getPackageManager()) != null) {
+                    if (getPhotoIntent.resolveActivity(getPackageManager()) != null) {
                         File photoFile = null;
                         try {
                             photoFile = createImageFile();
@@ -123,8 +123,9 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
                     int position = data.getIntExtra(Constants.EXTRA_POSITION, 0);
                     String photoPath = data.getStringExtra(Constants.EXTRA_PHOTO_PATH);
                     if (!TextUtils.isEmpty(photoPath)) {
-                        mFrames.get(position).destroy();
-                        mFrames.get(position).setPhotoPath(photoPath);
+                        frame = mFrames.get(position);
+                        frame.destroy();
+                        frame.setPhotoPath(photoPath);
                     }
                     mImageAdapter.notifyItemChanged(position);
                     break;

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/dialog_width"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/button_get_facebook_photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/flat_button_without_corner"
+        android:padding="@dimen/common_size_5"
+        android:text="@string/fab_facebook"
+        android:textColor="@color/black"
+        android:textSize="@dimen/common_text_size_10" />
+
+    <TextView
+        android:id="@+id/button_get_camera_photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/flat_button_without_corner"
+        android:padding="@dimen/common_size_5"
+        android:text="@string/fab_camera"
+        android:textColor="@color/black"
+        android:textSize="@dimen/common_text_size_10" />
+
+    <TextView
+        android:id="@+id/button_get_gallery_photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/flat_button_without_corner"
+        android:padding="@dimen/common_size_5"
+        android:text="@string/fab_gallery"
+        android:textColor="@color/black"
+        android:textSize="@dimen/common_text_size_10" />
+</LinearLayout>

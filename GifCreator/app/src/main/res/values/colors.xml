@@ -9,4 +9,5 @@
     <color name="floating_button_text_background_color">#f2eded</color>
     <color name="bottom_navigation_color">#f2741f</color>
     <color name="bottom_navigation_item_highlight_color">#e77224</color>
+    <color name="flat_button_highlight_color">#D5D2D2</color>
 </resources>

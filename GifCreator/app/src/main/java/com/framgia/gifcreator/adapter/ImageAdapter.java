@@ -40,7 +40,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         final Frame frame = mFrames.get(position);
         BitmapWorkerTask decodeFileTask = new BitmapWorkerTask(holder.mImageView, frame,
                 mContext.getResources().getDimensionPixelSize(R.dimen.image_item_width),
-                mContext.getResources().getDimensionPixelSize(R.dimen.image_item_height));
+                mContext.getResources().getDimensionPixelSize(R.dimen.image_item_height),
+                true);
         decodeFileTask.execute(BitmapWorkerTask.TASK_DECODE_FILE, frame.getPhotoPath());
         holder.mImageRemove.setOnClickListener(new View.OnClickListener() {
             @Override
