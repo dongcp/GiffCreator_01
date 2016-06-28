@@ -10,6 +10,7 @@ public class Frame {
     private String mPhotoPath;
     private Bitmap mFrame;
     private boolean mIsChosen;
+
     public Frame() {
     }
 
@@ -22,20 +23,20 @@ public class Frame {
         mFrame = frame;
     }
 
-    public void setPhotoPath(String photoPath) {
-        mPhotoPath = photoPath;
-    }
-
     public String getPhotoPath() {
         return mPhotoPath;
     }
 
-    public void setFrame(Bitmap frame) {
-        mFrame = frame;
+    public void setPhotoPath(String photoPath) {
+        mPhotoPath = photoPath;
     }
 
     public Bitmap getFrame() {
         return mFrame;
+    }
+
+    public void setFrame(Bitmap frame) {
+        mFrame = frame;
     }
 
     public void destroy() {

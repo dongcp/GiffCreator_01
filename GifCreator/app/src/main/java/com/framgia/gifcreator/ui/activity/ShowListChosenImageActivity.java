@@ -12,16 +12,15 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import com.framgia.gifcreator.R;
 import com.framgia.gifcreator.adapter.ImageAdapter;
 import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Frame;
 import com.framgia.gifcreator.ui.base.BaseActivity;
+import com.framgia.gifcreator.ui.widget.GetPhotoDialog;
 import com.framgia.gifcreator.util.FileUtil;
 
 import java.io.File;
@@ -29,21 +28,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShowListChosenImageActivity extends BaseActivity implements ImageAdapter.OnItemClickListener,
-        View.OnClickListener {
+public class ShowListChosenImageActivity extends BaseActivity implements
+        ImageAdapter.OnItemClickListener, View.OnClickListener {
 
+    private final int MIN_SIZE = 2;
+    private final int MAX_SIZE = 10;
     private final String IMAGE_EXTENSION = ".jpg";
     private ImageAdapter mImageAdapter;
     private RecyclerView mRecyclerView;
-    private LinearLayout mFloatingMenu;
     private CoordinatorLayout mCoordinatorLayout;
     private List<Frame> mAllItemList;
     private List<Frame> mGalleryList;
     private List<Frame> mCameraList;
     private List<Frame> mChosenList;
     private String mCurrentPhotoPath;
-    public static final int MIN_SIZE = 2;
-    public static final int MAX_SIZE = 10;
     private boolean isChosenList;
     private int mSourceType;
     private final int IMAGE_CAMERA = 1;
@@ -207,46 +205,39 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
             case R.id.fab_camera:
                 mSourceType = IMAGE_CAMERA;
                 if (mAllItemList.size() == Constants.MAXIMUM_FRAMES) {
-                    Snackbar.make(mCoordinatorLayout,
-                            getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
-                } else {
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    if (intent.resolveActivity(getPackageManager()) != null) {
-                        File photoFile = null;
-                        try {
-                            photoFile = createImageFile();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        if (photoFile != null) {
-                            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                            startActivityForResult(intent, Constants.REQUEST_CAMERA);
+                        Snackbar.make(mCoordinatorLayout,
+                                getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
+                    } else {
+                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        if (intent.resolveActivity(getPackageManager()) != null) {
+                            File photoFile = null;
+                            try {
+                                photoFile = createImageFile();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            if (photoFile != null) {
+                                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                                startActivityForResult(intent, Constants.REQUEST_CAMERA);
+                            }
                         }
                     }
-                }
-                break;
-            case R.id.fab_gallery:
-                mSourceType = IMAGE_GALLERY;
-                isChosenList = false;
-                if (mGalleryList.size() == 0) {
-                    mGalleryList = getImageListGallery();
-                }
-                refresh(mGalleryList);
-                break;
-            case R.id.main_floating_button:
-                mFloatingMenu.setVisibility(
-                        mFloatingMenu.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
-                break;
+                    break;
+                case R.id.fab_gallery:
+                    mSourceType = IMAGE_GALLERY;
+                    isChosenList = false;
+                    if (mGalleryList.size() == 0) {
+                        mGalleryList = getImageListGallery();
+                    }
+                    refresh(mGalleryList);
+                    break;
+            }
         }
-    }
 
     private void findViews() {
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_choosing_image);
-        mFloatingMenu = (LinearLayout) findViewById(R.id.floating_menu);
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
-        findViewById(R.id.fab_camera).setOnClickListener(this);
-        findViewById(R.id.fab_gallery).setOnClickListener(this);
-        findViewById(R.id.main_floating_button).setOnClickListener(this);
+        findViewById(R.id.floating_button).setOnClickListener(this);
     }
 
     private File createImageFile() throws IOException {

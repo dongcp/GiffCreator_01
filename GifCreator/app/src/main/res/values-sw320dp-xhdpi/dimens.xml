@@ -42,4 +42,6 @@
     <dimen name="large_image_height">260dp</dimen>
     <dimen name="thumbnail_pager_height">150dp</dimen>
     <dimen name="thumbnail_pager_padding_left">70dp</dimen>
+    <dimen name="gif_height">120dp</dimen>
+    <dimen name="button_load_gif_size">50dp</dimen>
 </resources>
