@@ -17,6 +17,7 @@ import com.framgia.gifcreator.util.BitmapWorkerTask;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener {
 
@@ -25,7 +26,7 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
     private ImageView mImagePreviewGif;
     private TextView mTextFps;
     private AppCompatSeekBar mSeekBarAdjustFps;
-    private ArrayList<Frame> mFrames;
+    private List<Frame> mFrames;
     private CountDownTimer mCountDownTimer;
     private int mInterval;
     private int mCount;

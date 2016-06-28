@@ -12,7 +12,7 @@ import com.framgia.gifcreator.R;
 /**
  * Created by yue on 20/06/2016.
  */
-public abstract class BaseActivity extends AppCompatActivity{
+public abstract class BaseActivity extends AppCompatActivity {
 
     protected Toolbar mToolbar;
 

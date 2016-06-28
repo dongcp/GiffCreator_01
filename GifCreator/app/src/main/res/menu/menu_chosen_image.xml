@@ -7,14 +7,8 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/action_open_list_all"
-        android:icon="@drawable/ic_add"
-        android:title="@string/action_chosen_list"
-        app:showAsAction="ifRoom" />
-
-    <item
         android:id="@+id/action_open_list_chosen"
         android:icon="@drawable/ic_chosen"
         android:title="@string/action_chosen_list"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 </menu>

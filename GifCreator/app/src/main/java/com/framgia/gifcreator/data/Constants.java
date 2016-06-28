@@ -12,6 +12,7 @@ public class Constants {
     public final static int REQUEST_CAMERA = 1;
     public final static int REQUEST_GALLERY = 2;
     public final static int REQUEST_ADJUST = 3;
-    public final static int MAXIMUM_FRAMES=10;
+    public final static int MAXIMUM_FRAMES = 10;
     public final static String DATE_FORMAT = "yyyyMMdd_HHmmss";
+    public final static String GIF_EXTENSION = ".gif";
 }

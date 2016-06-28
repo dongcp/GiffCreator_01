@@ -12,7 +12,7 @@ import com.framgia.gifcreator.data.Frame;
 import com.framgia.gifcreator.util.BitmapWorkerTask;
 import com.framgia.gifcreator.util.listener.OnThumbnailPagerItemClickListener;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by yue on 27/06/2016.
@@ -21,10 +21,10 @@ public class ThumbnailPagerAdapter extends PagerAdapter {
     private final String TAG_PREFIX = "IMG_";
     private Context mContext;
     private ViewPager mThumbnailPager;
-    private ArrayList<Frame> mFrames;
+    private List<Frame> mFrames;
     private OnThumbnailPagerItemClickListener mListener;
 
-    public ThumbnailPagerAdapter(Context context, ViewPager thumbnailPager, ArrayList<Frame> frames) {
+    public ThumbnailPagerAdapter(Context context, ViewPager thumbnailPager, List<Frame> frames) {
         mContext = context;
         mThumbnailPager = thumbnailPager;
         mFrames = frames;

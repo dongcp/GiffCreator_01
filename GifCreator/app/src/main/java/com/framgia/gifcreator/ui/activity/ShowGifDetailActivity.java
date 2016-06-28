@@ -18,18 +18,19 @@ import com.framgia.gifcreator.util.BitmapWorkerTask;
 import com.framgia.gifcreator.util.listener.OnThumbnailPagerItemClickListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by yue on 09/06/2016.
  */
 public class ShowGifDetailActivity extends BaseActivity implements
         OnThumbnailPagerItemClickListener {
-    
+
     private final int OFF_SCREEN_PAGE_LIMIT = 3;
     private ImageView mLargeImage;
     private ViewPager mThumbnailPager;
     private ThumbnailPagerAdapter mAdapter;
-    private ArrayList<Frame> mFrames;
+    private List<Frame> mFrames;
     private int mCurrentPosition;
     private boolean mIsFirst = true;
     private boolean mIsFrameChanged;
