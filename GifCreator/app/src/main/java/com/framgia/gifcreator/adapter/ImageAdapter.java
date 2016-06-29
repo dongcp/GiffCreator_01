@@ -6,13 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 
 import com.framgia.gifcreator.R;
 import com.framgia.gifcreator.data.Frame;
 import com.framgia.gifcreator.util.BitmapWorkerTask;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,6 +22,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     private List<Frame> mFrames;
     private Context mContext;
     private OnItemClickListener mOnItemClickListener;
+    private int mCount;
+    private final int LIMIT_ITEM = 10;
 
     public ImageAdapter(Context context, List<Frame> frames) {
         mContext = context;
@@ -43,27 +45,29 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 mContext.getResources().getDimensionPixelSize(R.dimen.image_item_height),
                 true);
         decodeFileTask.execute(BitmapWorkerTask.TASK_DECODE_FILE, frame.getPhotoPath());
-        holder.mImageRemove.setOnClickListener(new View.OnClickListener() {
+        holder.mCheckbox.setChecked(frame.isChosen());
+        holder.mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mOnItemClickListener != null) {
+                holder.mCheckbox.setChecked(!holder.mCheckbox.isChecked());
+                mFrames.get(position).setStatus(holder.mCheckbox.isChecked());
+                if (!holder.mCheckbox.isChecked() && mOnItemClickListener != null) {
                     mOnItemClickListener.onRemoveItem(position);
                 }
             }
         });
-        holder.mImageView.setOnClickListener(new View.OnClickListener() {
+        holder.mCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onPhotoChoose(position);
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    mCount++;
+                } else {
+                    mCount--;
                 }
-            }
-        });
-        holder.mCheckbox.setChecked(frame.isChosen());
-        holder.mCheckbox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mFrames.get(position).setStatus(holder.mCheckbox.isChecked());
+                if (mCount > LIMIT_ITEM) {
+                    mOnItemClickListener.showAlertNotification();
+                    mCount = 0;
+                }
             }
         });
     }
@@ -80,18 +84,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     public interface OnItemClickListener {
         void onRemoveItem(int position);
 
-        void onPhotoChoose(int position);
+        void showAlertNotification();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView mImageView;
-        public ImageView mImageRemove;
         public CheckBox mCheckbox;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mImageView = (ImageView) itemView.findViewById(R.id.image_choosing);
-            mImageRemove = (ImageView) itemView.findViewById(R.id.image_remove);
             mCheckbox = (CheckBox) itemView.findViewById(R.id.checkbox_item);
         }
     }

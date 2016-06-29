@@ -37,21 +37,23 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
     private RecyclerView mRecyclerView;
     private LinearLayout mFloatingMenu;
     private CoordinatorLayout mCoordinatorLayout;
-    private List<Frame> mFrames;
+    private List<Frame> mAllItemList;
+    private List<Frame> mChosenList;
     private String mCurrentPhotoPath;
     public static final int MIN_SIZE = 2;
     public static final int MAX_SIZE = 10;
+    private boolean isChosenList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         findViews();
         // Setup recycler view
-        mFrames = new ArrayList<>();
+        mAllItemList = new ArrayList<>();
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         mRecyclerView.setLayoutManager(gridLayoutManager);
-        mFrames.addAll(getImageListGallery());
-        mImageAdapter = new ImageAdapter(this, mFrames);
+        //mAllItemList.addAll(getImageListGallery());
+        mImageAdapter = new ImageAdapter(this, mAllItemList);
         mRecyclerView.setAdapter(mImageAdapter);
         mImageAdapter.setOnItemClickListener(this);
         // Call activity to get photo
@@ -74,6 +76,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
                     }
                     break;
                 case Constants.REQUEST_GALLERY:
+                    isChosenList = false;
                     refresh(getImageListGallery());
                     break;
             }
@@ -102,8 +105,8 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
             switch (requestCode) {
                 case Constants.REQUEST_CAMERA:
                     Frame frame = new Frame(mCurrentPhotoPath);
-                    mFrames.add(frame);
-                    mImageAdapter.notifyItemInserted(mFrames.indexOf(frame));
+                    mAllItemList.add(frame);
+                    mImageAdapter.notifyItemInserted(mAllItemList.indexOf(frame));
                     galleryAddPic();
                     break;
                 case Constants.REQUEST_GALLERY:
@@ -116,15 +119,14 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
                             getString(cursor.getColumnIndex(filePathColumn[0]));
                     cursor.close();
                     frame = new Frame(imgDecodeString);
-                    mFrames.add(frame);
-                    mImageAdapter.notifyItemInserted(mFrames.indexOf(frame));
+                    mAllItemList.add(frame);
+                    mImageAdapter.notifyItemInserted(mAllItemList.indexOf(frame));
                     break;
                 case Constants.REQUEST_ADJUST:
                     int position = data.getIntExtra(Constants.EXTRA_POSITION, 0);
                     String photoPath = data.getStringExtra(Constants.EXTRA_PHOTO_PATH);
                     if (!TextUtils.isEmpty(photoPath)) {
-                        frame = mFrames.get(position);
-                        frame.destroy();
+                        frame = mAllItemList.get(position);
                         frame.setPhotoPath(photoPath);
                     }
                     mImageAdapter.notifyItemChanged(position);
@@ -145,8 +147,10 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
         if (imageCursor.moveToLast()) {
             do {
                 String imagePath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                Frame frame = new Frame(imagePath);
-                imageItems.add(frame);
+                if (isNormalImage(imagePath)) {
+                    Frame frame = new Frame(imagePath);
+                    imageItems.add(frame);
+                }
             } while (imageCursor.moveToPrevious());
         }
         imageCursor.close();
@@ -157,25 +161,18 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_preview_gif:
-                if (mFrames.size() < MIN_SIZE) {
+                if (mAllItemList.size() < MIN_SIZE) {
                     Snackbar.make(mCoordinatorLayout,
                             getString(R.string.warning_make_gif), Snackbar.LENGTH_SHORT).show();
                 } else {
                     Intent intent = new Intent(this, PreviewGifActivity.class);
-                    int size = mFrames.size();
+                    int size = mAllItemList.size();
                     String[] paths = new String[size];
                     for (int i = 0; i < size; i++) {
-                        paths[i] = mFrames.get(i).getPhotoPath();
+                        paths[i] = mAllItemList.get(i).getPhotoPath();
                     }
                     intent.putExtra(Constants.EXTRA_PATHS_LIST, paths);
                     startActivity(intent);
-                }
-                break;
-            case R.id.action_open_list_all:
-                if (getImageListGallery().size() != mFrames.size()) {
-                    refresh(getImageListGallery());
-                } else {
-                    mImageAdapter.notifyDataSetChanged();
                 }
                 break;
             case R.id.action_open_list_chosen:
@@ -183,6 +180,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
                     Snackbar.make(mCoordinatorLayout,
                             getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
                 } else {
+                    isChosenList = true;
                     refresh(getChosenList());
                 }
                 break;
@@ -190,25 +188,12 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onRemoveItem(int position) {
-        mFrames.remove(position);
-        mImageAdapter.notifyItemRemoved(position);
-    }
-
-    @Override
-    public void onPhotoChoose(int position) {
-        Intent intent = new Intent(ShowListChosenImageActivity.this, AdjustImageActivity.class);
-        intent.putExtra(Constants.EXTRA_PHOTO_PATH, mFrames.get(position).getPhotoPath());
-        intent.putExtra(Constants.EXTRA_POSITION, position);
-        startActivityForResult(intent, Constants.REQUEST_ADJUST);
-    }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fab_camera:
-                if (mFrames.size() == Constants.MAXIMUM_FRAMES) {
+                if (mAllItemList.size() == Constants.MAXIMUM_FRAMES) {
                     Snackbar.make(mCoordinatorLayout,
                             getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
                 } else {
@@ -228,6 +213,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
                 }
                 break;
             case R.id.fab_gallery:
+                isChosenList = false;
                 refresh(getImageListGallery());
                 break;
             case R.id.main_floating_button:
@@ -264,18 +250,47 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
 
     private List<Frame> getChosenList() {
         List<Frame> chosenList = new ArrayList<>();
-        int length = mFrames.size();
+        int length = mAllItemList.size();
         for (int i = 0; i < length; i++) {
-            if (mFrames.get(i).isChosen()) {
-                chosenList.add(mFrames.get(i));
+            if (mAllItemList.get(i).isChosen()) {
+                chosenList.add(mAllItemList.get(i));
             }
         }
         return chosenList;
     }
 
     public void refresh(List<Frame> frames) {
-        mFrames.clear();
-        mFrames.addAll(frames);
+        mAllItemList.clear();
+        mAllItemList.addAll(frames);
         mImageAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onRemoveItem(int position) {
+        if (isChosenList) {
+            mAllItemList.remove(position);
+            mImageAdapter.notifyItemRemoved(position);
+            mImageAdapter.notifyItemRangeChanged(position, mAllItemList.size());
+        }
+    }
+
+    @Override
+    public void showAlertNotification() {
+        Snackbar.make(mCoordinatorLayout,
+                getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
+    }
+
+    private boolean isNormalImage(String filePath) {
+        boolean check = true;
+        int length = filePath.length();
+        int position = filePath.lastIndexOf(Constants.DOT);
+        for (int i = 0; i < length; i++) {
+            if (filePath.substring(position).equals(Constants.PNG) ||
+                    filePath.substring(position).equals(Constants.JPG) &&
+                            position > 0) {
+                return true;
+            }
+        }
+        return check;
     }
 }

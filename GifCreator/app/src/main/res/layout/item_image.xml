@@ -7,17 +7,13 @@
         android:id="@+id/image_choosing"
         android:layout_width="@dimen/image_item_width"
         android:layout_height="@dimen/image_item_height"
-        android:layout_margin="@dimen/image_item_space" />
-
-    <ImageView
-        android:id="@+id/image_remove"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_cancel" />
+        android:layout_margin="@dimen/image_item_space"
+        android:clickable="true" />
 
     <CheckBox
         android:id="@+id/checkbox_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|center" />
+        android:layout_gravity="top|center"
+        android:clickable="false" />
 </FrameLayout>
