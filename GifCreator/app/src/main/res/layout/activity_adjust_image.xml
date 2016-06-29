@@ -12,8 +12,7 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/bottom_area"
         android:layout_below="@+id/toolbar"
-        android:layout_margin="@dimen/common_size_20"
-        android:scaleType="fitXY" />
+        android:layout_margin="@dimen/common_size_20" />
 
     <RelativeLayout
         android:id="@+id/bottom_area"

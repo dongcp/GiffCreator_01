@@ -13,21 +13,40 @@ public class GetPhotoDialog {
 
     public final static int TYPE_CAMERA = 0,
             TYPE_GALLERY = 1,
-            TYPE_FACEBOOK = 2;
+            TYPE_FACEBOOK = 2,
+            TYPE_REMOVE = 3;
     private Context mContext;
     private OnDialogItemChooseListener mOnDialogItemChooseListener;
+    private CharSequence[] mDialogItems;
 
     public GetPhotoDialog(Context context) {
-        mContext = context;
+        this(context, false);
     }
 
-    public void setOnDialogItemChooseListener(OnDialogItemChooseListener onDialogItemChooseListener) {
+    public GetPhotoDialog(Context context, boolean enableRemoveButton) {
+        mContext = context;
+        if (enableRemoveButton) {
+            mDialogItems = new CharSequence[4];
+            mDialogItems[0] = mContext.getString(R.string.get_photo_from_camera);
+            mDialogItems[1] = mContext.getString(R.string.get_photo_from_gallery);
+            mDialogItems[2] = mContext.getString(R.string.get_photo_from_facebook);
+            mDialogItems[3] = mContext.getString(R.string.remove_frame);
+        } else {
+            mDialogItems = new CharSequence[3];
+            mDialogItems[0] = mContext.getString(R.string.get_photo_from_camera);
+            mDialogItems[1] = mContext.getString(R.string.get_photo_from_gallery);
+            mDialogItems[2] = mContext.getString(R.string.get_photo_from_facebook);
+        }
+    }
+
+    public void setOnDialogItemChooseListener(
+            OnDialogItemChooseListener onDialogItemChooseListener) {
         mOnDialogItemChooseListener = onDialogItemChooseListener;
     }
 
     public void showDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setItems(R.array.choose_image, new DialogInterface.OnClickListener() {
+        builder.setItems(mDialogItems, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (mOnDialogItemChooseListener != null) {

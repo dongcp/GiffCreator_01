@@ -1,42 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/coordinator_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <include layout="@layout/toolbar" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/common_size_5"
-        android:layout_marginTop="@dimen/common_size_5"
-        android:text="@string/long_press_feature"
-        android:textColor="@color/black"
-        android:textSize="@dimen/common_text_size_9" />
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/thumbnail_pager"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/thumbnail_pager_height"
-        android:paddingLeft="@dimen/thumbnail_pager_padding_left"
-        android:paddingRight="@dimen/common_size_5" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/common_size_5"
-        android:layout_marginTop="@dimen/common_size_5"
-        android:text="@string/press_thumbnail"
-        android:textColor="@color/black"
-        android:textSize="@dimen/common_text_size_9" />
+        <include layout="@layout/toolbar" />
 
-    <ImageView
-        android:id="@+id/large_image"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/large_image_height"
-        android:layout_marginTop="@dimen/common_size_15"
-        android:scaleType="centerCrop" />
-</LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/common_size_5"
+            android:layout_marginTop="@dimen/common_size_5"
+            android:text="@string/long_press_feature"
+            android:textColor="@color/black"
+            android:textSize="@dimen/common_text_size_9" />
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/thumbnail_pager"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/thumbnail_pager_height"
+            android:paddingLeft="@dimen/thumbnail_pager_padding_left"
+            android:paddingRight="@dimen/common_size_5" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/common_size_5"
+            android:layout_marginTop="@dimen/common_size_5"
+            android:text="@string/press_thumbnail"
+            android:textColor="@color/black"
+            android:textSize="@dimen/common_text_size_9" />
+
+        <ImageView
+            android:id="@+id/large_image"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/large_image_height"
+            android:layout_marginTop="@dimen/common_size_15" />
+    </LinearLayout>
+</android.support.design.widget.CoordinatorLayout>
