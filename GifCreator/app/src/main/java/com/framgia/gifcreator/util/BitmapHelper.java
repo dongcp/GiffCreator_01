@@ -2,6 +2,7 @@ package com.framgia.gifcreator.util;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,7 +18,14 @@ public class BitmapHelper {
         BitmapFactory.decodeFile(path, options);
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(path, options);
+        Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+        float scaleW = (float) reqWidth / bitmap.getWidth();
+        float scaleH = (float) reqHeight / bitmap.getHeight();
+        float scale = (scaleW > scaleH) ? scaleW : scaleH;
+        Matrix matrix = new Matrix();
+        matrix.postScale(scale, scale);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(),
+                matrix, false);
     }
 
     public static Bitmap resizeBitmap(Bitmap bitmap, int reqWidth, int reqHeight) throws IOException {
@@ -27,14 +35,30 @@ public class BitmapHelper {
         BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         options.inJustDecodeBounds = false;
-        return Bitmap.createScaledBitmap(BitmapFactory.decodeByteArray(
-                imageData, 0, imageData.length, options), reqWidth, reqHeight, true);
+        Bitmap image = BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
+        float scaleW = (float) reqWidth / image.getWidth();
+        float scaleH = (float) reqHeight / image.getHeight();
+        float scale = (scaleW > scaleH) ? scaleW : scaleH;
+        Matrix matrix = new Matrix();
+        matrix.postScale(scale, scale);
+        return Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(),
+                matrix, false);
     }
 
     public static byte[] convertBitmapToByteArray(Bitmap bitmap) throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         return stream.toByteArray();
+    }
+
+    public static int[] getImageSize(String imagePath) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(imagePath, options);
+        int[] size = new int[2];
+        size[0] = options.outWidth;
+        size[1] = options.outHeight;
+        return size;
     }
 
     private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {

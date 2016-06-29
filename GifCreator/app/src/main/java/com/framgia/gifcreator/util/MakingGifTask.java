@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.framgia.gifcreator.R;
 import com.framgia.gifcreator.data.Constants;
 
 import java.io.ByteArrayOutputStream;
@@ -29,19 +30,21 @@ public class MakingGifTask extends AsyncTask<String[], Void, String> {
     private OnFinishMakingGif mOnFinishMakingGif;
     private Display mDisplay;
     private int mFps;
-    private int mScreenWidth;
-    private int mScreenHeight;
+    private int mMinHeight;
+    private int mMinWidth;
 
     public MakingGifTask(Context context, int fps) {
         mContext = context;
         mProgressDialog = new ProgressDialog(mContext);
+        mProgressDialog.setMessage(context.getString(R.string.making_gif));
+        mProgressDialog.setCanceledOnTouchOutside(false);
         mFps = fps;
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         mDisplay = wm.getDefaultDisplay();
         Point size = new Point();
         mDisplay.getSize(size);
-        mScreenWidth = size.x;
-        mScreenHeight = size.y;
+        mMinWidth = size.x;
+        mMinHeight = size.y;
     }
 
     public void setOnFinishMakingGif(OnFinishMakingGif onFinishMakingGif) {
@@ -58,16 +61,17 @@ public class MakingGifTask extends AsyncTask<String[], Void, String> {
     protected String doInBackground(String[]... params) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         AnimatedGifEncoder gifEncoder = new AnimatedGifEncoder();
+        gifEncoder.setFrameRate(mFps);
         gifEncoder.start(bos);
+        getAppropriateSize(params[0]);
         for (String photoPath : params[0]) {
             Bitmap frame;
             if (!TextUtils.isEmpty(photoPath)) {
-                frame = BitmapHelper.decodeFile(photoPath, mScreenWidth, mScreenHeight);
+                frame = BitmapHelper.decodeFile(photoPath, mMinWidth, mMinHeight);
                 gifEncoder.addFrame(frame);
                 frame.recycle();
             }
         }
-        gifEncoder.setFrameRate(mFps);
         gifEncoder.finish();
         byte[] gifData = bos.toByteArray();
         try {
@@ -90,6 +94,14 @@ public class MakingGifTask extends AsyncTask<String[], Void, String> {
         mProgressDialog.dismiss();
         if (mOnFinishMakingGif != null) {
             mOnFinishMakingGif.onFinishMakingGif(s);
+        }
+    }
+
+    private void getAppropriateSize(String[] photoPaths) {
+        for (String photoPath : photoPaths) {
+            int[] size = BitmapHelper.getImageSize(photoPath);
+            if (mMinWidth > size[0]) mMinWidth = size[0];
+            if (mMinHeight > size[1]) mMinHeight = size[1];
         }
     }
 

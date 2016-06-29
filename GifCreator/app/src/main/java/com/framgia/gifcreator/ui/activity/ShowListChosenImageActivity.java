@@ -62,6 +62,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
         mImageAdapter = new ImageAdapter(this, mAllItemList);
         mRecyclerView.setAdapter(mImageAdapter);
         mImageAdapter.setOnItemClickListener(this);
+        enableBackButton();
         // Call activity to get photo
         Intent intent = getIntent();
         if (intent != null) {

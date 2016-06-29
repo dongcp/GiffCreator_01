@@ -13,14 +13,14 @@ import com.framgia.gifcreator.R;
 import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Frame;
 import com.framgia.gifcreator.ui.base.BaseActivity;
-import com.framgia.gifcreator.util.BitmapWorkerTask;
+import com.framgia.gifcreator.util.LoadFrameTask;
 import com.framgia.gifcreator.util.MakingGifTask;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener {
+public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener, LoadFrameTask.OnLoadCompleteListener {
 
     private final int MAX_FPS = 9;
     private final int DEFAULT_FPS = 4;
@@ -42,7 +42,8 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
         mSeekBarAdjustFps.setOnSeekBarChangeListener(this);
         mTextFps.setText(MessageFormat.format(getString(R.string.fps), DEFAULT_FPS + 1));
         mInterval = 1000 / DEFAULT_FPS;
-        startPreview();
+        enableToolbar();
+        loadFrames();
     }
 
     @Override
@@ -91,12 +92,15 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
                 }
                 intent.putExtra(Constants.EXTRA_PATHS_LIST, paths);
                 startActivityForResult(intent, Constants.REQUEST_ADJUST);
+                mCountDownTimer.cancel();
+                mImagePreviewGif.setImageBitmap(null);
                 break;
             case R.id.action_make_gif:
-                MakingGifTask makingGifTask = new MakingGifTask(this, mSeekBarAdjustFps.getProgress() + 1);
-                size = mFrames.size();
-                String[] photoPaths = new String[size];
-                for (int i = 0; i < size; i++) {
+                MakingGifTask makingGifTask =
+                        new MakingGifTask(this, mSeekBarAdjustFps.getProgress() + 1);
+                int numberOfFrames = mFrames.size();
+                String[] photoPaths = new String[numberOfFrames];
+                for (int i = 0; i < numberOfFrames; i++) {
                     photoPaths[i] = mFrames.get(i).getPhotoPath();
                 }
                 makingGifTask.execute(photoPaths);
@@ -116,10 +120,18 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
                     for (int i = 0; i < size; i++) {
                         mFrames.add(new Frame(photoPaths[i]));
                     }
+                    loadFrames();
                 }
             }
+        } else {
+            startPreview();
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onLoadComplete() {
+        startPreview();
     }
 
     private void findViews() {
@@ -139,20 +151,17 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
         }
     }
 
+    private void loadFrames() {
+        LoadFrameTask loadFrameTask = new LoadFrameTask(this, mFrames);
+        loadFrameTask.setOnLoadCompleteListener(this);
+        loadFrameTask.execute();
+    }
+
     private void startPreview() {
         mCountDownTimer = new CountDownTimer(Long.MAX_VALUE, mInterval) {
             @Override
             public void onTick(long millisUntilFinished) {
-                if (mFrames.get(mCount).getFrame() != null) {
-                    mImagePreviewGif.setImageBitmap(mFrames.get(mCount).getFrame());
-                } else {
-                    BitmapWorkerTask task = new BitmapWorkerTask(mImagePreviewGif, mFrames.get(mCount),
-                            getResources().getDimensionPixelSize(R.dimen.preview_gif_image_width),
-                            getResources().getDimensionPixelSize(R.dimen.preview_gif_image_height),
-                            true);
-                    task.execute(BitmapWorkerTask.TASK_DECODE_FILE,
-                            mFrames.get(mCount).getPhotoPath());
-                }
+                mImagePreviewGif.setImageBitmap(mFrames.get(mCount).getFrame());
                 mCount++;
                 if (mCount == mFrames.size()) mCount = 0;
             }

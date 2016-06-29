@@ -35,16 +35,30 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         super.onCreate(savedInstanceState);
         findViews();
         mGifs = new ArrayList<>();
-        getGifs();
         mGifAdapter = new GifAdapter(this, mGifs);
-        if (mGifs.size() > 1) {
-            mGifRecyclerView.setLayoutManager(new GridLayoutManager(this, NUMBER_OF_COLUMNS));
-            mGifRecyclerView.addItemDecoration(new GridItemDecoration(this));
-        } else {
-            mGifRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            mGifRecyclerView.addItemDecoration(new LinearItemDecoration(this));
-        }
         mGifRecyclerView.setAdapter(mGifAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getGifs();
+        int size = mGifs.size();
+        for (int i = 0; i < size; i++) {
+            mGifs.get(i).setState(false);
+        }
+        if (mGifs.size() > 1) {
+            if (!(mGifRecyclerView.getLayoutManager() instanceof GridLayoutManager)) {
+                mGifRecyclerView.setLayoutManager(new GridLayoutManager(this, NUMBER_OF_COLUMNS));
+                mGifRecyclerView.addItemDecoration(new GridItemDecoration(this));
+            }
+        } else {
+            if (mGifRecyclerView.getLayoutManager() == null) {
+                mGifRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+                mGifRecyclerView.addItemDecoration(new LinearItemDecoration(this));
+            }
+        }
+        mGifAdapter.notifyDataSetChanged();
     }
 
     @Override

@@ -60,7 +60,8 @@ public class ThumbnailPagerAdapter extends PagerAdapter {
             @Override
             public boolean onLongClick(View v) {
                 if (mListener != null) {
-                    mListener.onThumbnailLongClick();
+                    int p = (int) v.getTag();
+                    mListener.onThumbnailLongClick(p);
                 }
                 return false;
             }
@@ -87,6 +88,11 @@ public class ThumbnailPagerAdapter extends PagerAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         container.removeView((View) object);
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return PagerAdapter.POSITION_NONE;
     }
 
     public void refresh(int position) {

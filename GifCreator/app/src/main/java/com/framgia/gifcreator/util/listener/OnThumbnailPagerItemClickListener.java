@@ -6,5 +6,5 @@ package com.framgia.gifcreator.util.listener;
 public interface OnThumbnailPagerItemClickListener {
     void onThumbnailClick(int position);
 
-    void onThumbnailLongClick();
+    void onThumbnailLongClick(int position);
 }

@@ -36,6 +36,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         return true;
     }
 
+    public void enableBackButton() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
+    }
+
     protected String getActivityTitle() {
         return getString(R.string.app_name);
     }

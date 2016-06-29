@@ -1,7 +1,10 @@
 package com.framgia.gifcreator.ui.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.ViewTreeObserver;
@@ -13,6 +16,7 @@ import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Frame;
 import com.framgia.gifcreator.ui.base.BaseActivity;
 import com.framgia.gifcreator.ui.widget.BottomNavigationItem;
+import com.framgia.gifcreator.util.BitmapHelper;
 import com.framgia.gifcreator.util.BitmapWorkerTask;
 import com.framgia.gifcreator.util.FileUtil;
 import com.framgia.gifcreator.util.ImageProcessing;
@@ -56,8 +60,7 @@ public class AdjustImageActivity extends BaseActivity implements
                     }
                 }
         );
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
+        enableBackButton();
     }
 
     @Override
@@ -118,15 +121,39 @@ public class AdjustImageActivity extends BaseActivity implements
             if (mBottomNavigationLevel == BOTTOM_NAVIGATION_LEVEL_2) {
                 makeBottomNavigation(mBottomNavigationMainItems);
             } else {
-                Intent intent = new Intent();
-                intent.putExtra(Constants.EXTRA_POSITION, mPosition);
-                try {
-                    intent.putExtra(Constants.EXTRA_PHOTO_PATH, FileUtil.saveImage(this, mFrame.getFrame()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                setResult(RESULT_OK, intent);
-                finish();
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+                dialogBuilder.setMessage(R.string.save_image).
+                        setPositiveButton(R.string.button_yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent();
+                                intent.putExtra(Constants.EXTRA_POSITION, mPosition);
+                                Point size = new Point();
+                                getWindowManager().getDefaultDisplay().getSize(size);
+                                int screenWidth = size.x;
+                                int screenHeight = size.y;
+                                try {
+                                    if (mFrame.getFrame() != null) {
+                                        Bitmap bitmap = BitmapHelper.resizeBitmap(mFrame.getFrame(),
+                                                screenWidth, screenHeight);
+                                        intent.putExtra(Constants.EXTRA_PHOTO_PATH,
+                                                FileUtil.saveImage(AdjustImageActivity.this, bitmap));
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                setResult(RESULT_OK, intent);
+                                finish();
+                            }
+                        }).
+                        setNegativeButton(R.string.button_no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                setResult(RESULT_CANCELED);
+                                finish();
+                            }
+                        });
+                dialogBuilder.show();
             }
         }
     }
