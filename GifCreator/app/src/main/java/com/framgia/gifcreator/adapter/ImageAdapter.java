@@ -66,7 +66,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 }
                 if (mCount > LIMIT_ITEM) {
                     mOnItemClickListener.showAlertNotification();
-                    //mCount = 0;
                 }
             }
         });

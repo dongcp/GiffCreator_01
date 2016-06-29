@@ -31,7 +31,6 @@ import java.util.List;
 public class ShowListChosenImageActivity extends BaseActivity implements ImageAdapter.OnItemClickListener,
         View.OnClickListener {
 
-
     private final String IMAGE_EXTENSION = ".jpg";
     private ImageAdapter mImageAdapter;
     private RecyclerView mRecyclerView;
