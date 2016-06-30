@@ -166,7 +166,8 @@ public class ShowListChosenImageActivity extends BaseActivity implements
         Cursor imageCursor = imageLoader.loadInBackground();
         if (imageCursor.moveToLast()) {
             do {
-                String imagePath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                String imagePath = imageCursor.getString(
+                        imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
                 if (isNormalImage(imagePath)) {
                     Frame frame = new Frame(imagePath);
                     imageItems.add(frame);
@@ -225,7 +226,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
     public void onDialogItemChoose(int type) {
         switch (type) {
             case GetPhotoDialog.TYPE_CAMERA:
-                if (mChosenList.size() == Constants.MAXIMUM_FRAMES) {
+                if (mAllItemList.size() == Constants.MAXIMUM_FRAMES) {
                     AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
                 } else {
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -244,7 +245,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                 }
                 break;
             case GetPhotoDialog.TYPE_GALLERY:
-                if (mChosenList.size() > Constants.MAXIMUM_FRAMES) {
+                if (mAllItemList.size() > Constants.MAXIMUM_FRAMES) {
                     AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
                 } else {
                     isChosenList = false;
