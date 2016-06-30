@@ -50,20 +50,14 @@ public class FileUtil {
         return imageFile.getAbsolutePath();
     }
 
-    public static String getPath(Context context, Uri uri) {
-        String[] projection = {MediaStore.Images.Media.DATA};
-        Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
-        if (cursor == null) return null;
-        int columnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        String s = cursor.getString(columnIndex);
-        cursor.close();
-        return s;
-    }
-
     public static String getImageName() {
         String timeStamp = new SimpleDateFormat(DATE_FORMAT).format(new Date());
         return IMAGE_NAME_PREFIX + timeStamp + IMAGE_EXTENSION;
+    }
+
+    public static void removeFile(String filePath) {
+        File file = new File(filePath);
+        if (file != null) file.delete();
     }
 
     public static String getGalleryPhotoPath(Context context, Uri uri) {

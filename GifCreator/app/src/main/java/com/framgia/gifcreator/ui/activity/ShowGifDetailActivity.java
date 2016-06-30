@@ -22,7 +22,7 @@ import com.framgia.gifcreator.ui.widget.GetPhotoDialog;
 import com.framgia.gifcreator.util.AppHelper;
 import com.framgia.gifcreator.util.BitmapWorkerTask;
 import com.framgia.gifcreator.util.FileUtil;
-import com.framgia.gifcreator.util.listener.OnThumbnailPagerItemClickListener;
+import com.framgia.gifcreator.util.listener.OnListItemInteractListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.util.List;
  * Created by yue on 09/06/2016.
  */
 public class ShowGifDetailActivity extends BaseActivity implements
-        OnThumbnailPagerItemClickListener, GetPhotoDialog.OnDialogItemChooseListener {
+        GetPhotoDialog.OnDialogItemChooseListener, OnListItemInteractListener {
 
     private final String IMAGE_EXTENSION = ".jpg";
     private final String PICK_IMAGE_TYPE = "image/*";
@@ -57,7 +57,7 @@ public class ShowGifDetailActivity extends BaseActivity implements
         findViews();
         getData();
         mPagerAdapter = new ThumbnailPagerAdapter(this, mThumbnailPager, mFrames);
-        mPagerAdapter.setOnThumbnailPagerItemClickListener(this);
+        mPagerAdapter.setOnListItemInteractListener(this);
         mThumbnailPager.setClipToPadding(false);
         mThumbnailPager.setPageMargin(getResources().getDimensionPixelSize(R.dimen.common_size_15));
         mThumbnailPager.setOffscreenPageLimit(OFF_SCREEN_PAGE_LIMIT);
@@ -148,22 +148,6 @@ public class ShowGifDetailActivity extends BaseActivity implements
     }
 
     @Override
-    public void onThumbnailClick(int position) {
-        mCurrentPosition = position;
-        Frame frame = mFrames.get(position);
-        mLargeImage.setImageBitmap(frame.getFrame());
-    }
-
-    @Override
-    public void onThumbnailLongClick(int position) {
-        mLongClickPosition = position;
-        GetPhotoDialog dialog = mFrames.size() > 2 ?
-                new GetPhotoDialog(this, true) : new GetPhotoDialog(this);
-        dialog.setOnDialogItemChooseListener(this);
-        dialog.showDialog();
-    }
-
-    @Override
     public void onBackPressed() {
         if (mIsFrameChanged || mIsListChanged) {
             Intent intent = new Intent();
@@ -222,6 +206,22 @@ public class ShowGifDetailActivity extends BaseActivity implements
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onListItemClick(int position) {
+        mCurrentPosition = position;
+        Frame frame = mFrames.get(position);
+        mLargeImage.setImageBitmap(frame.getFrame());
+    }
+
+    @Override
+    public void onListItemLongClick(int position) {
+        mLongClickPosition = position;
+        GetPhotoDialog dialog = mFrames.size() > 2 ?
+                new GetPhotoDialog(this, true) : new GetPhotoDialog(this);
+        dialog.setOnDialogItemChooseListener(this);
+        dialog.showDialog();
     }
 
     private void findViews() {

@@ -113,7 +113,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
             switch (requestCode) {
                 case Constants.REQUEST_CAMERA:
                     frame = new Frame(mCurrentPhotoPath);
-                    frame.setStatus(true);
+                    frame.setChecked(true);
                     mAllItemList.add(frame);
                     mImageAdapter.notifyItemInserted(mAllItemList.indexOf(frame));
                     galleryAddPic();

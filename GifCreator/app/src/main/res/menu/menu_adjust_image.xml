@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/action_apply_effect"
-        android:icon="@drawable/ic_apply_effect"
+        android:icon="@drawable/ic_tick"
         android:title="@string/action_apply_effect"
         app:showAsAction="always" />
 </menu>

@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import com.framgia.gifcreator.R;
 import com.framgia.gifcreator.data.Frame;
 import com.framgia.gifcreator.util.BitmapWorkerTask;
-import com.framgia.gifcreator.util.listener.OnThumbnailPagerItemClickListener;
+import com.framgia.gifcreator.util.listener.OnListItemInteractListener;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class ThumbnailPagerAdapter extends PagerAdapter {
     private Context mContext;
     private ViewPager mThumbnailPager;
     private List<Frame> mFrames;
-    private OnThumbnailPagerItemClickListener mListener;
+    private OnListItemInteractListener mListener;
 
     public ThumbnailPagerAdapter(Context context, ViewPager thumbnailPager, List<Frame> frames) {
         mContext = context;
@@ -30,7 +30,7 @@ public class ThumbnailPagerAdapter extends PagerAdapter {
         mFrames = frames;
     }
 
-    public void setOnThumbnailPagerItemClickListener(OnThumbnailPagerItemClickListener listener) {
+    public void setOnListItemInteractListener(OnListItemInteractListener listener) {
         mListener = listener;
     }
 
@@ -61,7 +61,7 @@ public class ThumbnailPagerAdapter extends PagerAdapter {
             public boolean onLongClick(View v) {
                 if (mListener != null) {
                     int p = (int) v.getTag();
-                    mListener.onThumbnailLongClick(p);
+                    mListener.onListItemLongClick(p);
                 }
                 return false;
             }
@@ -71,7 +71,7 @@ public class ThumbnailPagerAdapter extends PagerAdapter {
             public void onClick(View v) {
                 if (mListener != null) {
                     int p = (int) v.getTag();
-                    mListener.onThumbnailClick(p);
+                    mListener.onListItemClick(p);
                 }
             }
         });
