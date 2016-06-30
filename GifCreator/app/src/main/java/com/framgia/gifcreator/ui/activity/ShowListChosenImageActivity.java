@@ -36,6 +36,8 @@ public class ShowListChosenImageActivity extends BaseActivity implements
 
     private final int MIN_SIZE = 2;
     private final int MAX_SIZE = 10;
+    private final int IMAGE_CAMERA = 1;
+    private final int IMAGE_GALLERY = 2;
     private final String IMAGE_EXTENSION = ".jpg";
     private ImageAdapter mImageAdapter;
     private RecyclerView mRecyclerView;
@@ -47,10 +49,8 @@ public class ShowListChosenImageActivity extends BaseActivity implements
     private List<Frame> mChosenList;
     private String mCurrentPhotoPath;
     private int mRequestCode;
-    private boolean isChosenList;
     private int mSourceType;
-    private final int IMAGE_CAMERA = 1;
-    private final int IMAGE_GALLERY = 2;
+    private boolean isChosenList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +92,9 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                 case Constants.REQUEST_GALLERY:
                     mSourceType = IMAGE_GALLERY;
                     isChosenList = false;
-                    mGalleryList = getImageListGallery();
+                    if(mGalleryList.size()==0){
+                        mGalleryList = getImageListGallery();
+                    }
                     refresh(mGalleryList);
                     break;
             }
@@ -249,7 +251,10 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                     AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
                 } else {
                     isChosenList = false;
-                    refresh(getImageListGallery());
+                    if(mGalleryList.size()==0){
+                        mGalleryList = getImageListGallery();
+                    }
+                    refresh(mGalleryList);
                 }
                 break;
         }
