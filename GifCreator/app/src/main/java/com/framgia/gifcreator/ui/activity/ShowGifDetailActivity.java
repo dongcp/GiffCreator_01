@@ -6,9 +6,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
@@ -19,6 +19,7 @@ import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Frame;
 import com.framgia.gifcreator.ui.base.BaseActivity;
 import com.framgia.gifcreator.ui.widget.GetPhotoDialog;
+import com.framgia.gifcreator.util.AppHelper;
 import com.framgia.gifcreator.util.BitmapWorkerTask;
 import com.framgia.gifcreator.util.FileUtil;
 import com.framgia.gifcreator.util.listener.OnThumbnailPagerItemClickListener;
@@ -35,7 +36,7 @@ public class ShowGifDetailActivity extends BaseActivity implements
         OnThumbnailPagerItemClickListener, GetPhotoDialog.OnDialogItemChooseListener {
 
     private final String IMAGE_EXTENSION = ".jpg";
-    private final String PICK_IMAGE_TYPE = "image/";
+    private final String PICK_IMAGE_TYPE = "image/*";
     private final String PICK_IMAGE_TITLE = "Select Picture";
     private final int OFF_SCREEN_PAGE_LIMIT = 3;
     private ImageView mLargeImage;
@@ -84,8 +85,9 @@ public class ShowGifDetailActivity extends BaseActivity implements
     }
 
     @Override
-    protected int getMenuResId() {
-        return R.menu.menu_show_gif_detail;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_show_gif_detail, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -116,8 +118,8 @@ public class ShowGifDetailActivity extends BaseActivity implements
                         if (!TextUtils.isEmpty(photoPath)) {
                             mIsFrameChanged = true;
                             Frame currentFrame = mFrames.get(mCurrentPosition);
-                            currentFrame.destroy();
                             currentFrame.setPhotoPath(photoPath);
+                            currentFrame.setFrame(null);
                             mPagerAdapter.refresh(mCurrentPosition);
                             BitmapWorkerTask task = new BitmapWorkerTask(mLargeImage, currentFrame,
                                     mLargeImage.getWidth(), mLargeImage.getHeight(), false);
@@ -126,11 +128,16 @@ public class ShowGifDetailActivity extends BaseActivity implements
                     }
                     break;
                 case Constants.REQUEST_GALLERY:
+                    mIsListChanged = true;
                     Uri uri = data.getData();
-                    mFrames.add(mLongClickPosition + 1, new Frame(uri.getPath()));
-                    mPagerAdapter.notifyDataSetChanged();
+                    String photoPath = FileUtil.getGalleryPhotoPath(this, uri);
+                    if (!TextUtils.isEmpty(photoPath)) {
+                        mFrames.add(mLongClickPosition + 1, new Frame(photoPath));
+                        mPagerAdapter.notifyDataSetChanged();
+                    }
                     break;
                 case Constants.REQUEST_CAMERA:
+                    mIsListChanged = true;
                     mFrames.add(mLongClickPosition + 1, new Frame(mCurrentPhotoPath));
                     mPagerAdapter.notifyDataSetChanged();
                     galleryAddPic();
@@ -177,16 +184,14 @@ public class ShowGifDetailActivity extends BaseActivity implements
         switch (type) {
             case GetPhotoDialog.TYPE_GALLERY:
                 if (size == Constants.MAXIMUM_FRAMES) {
-                    Snackbar.make(mCoordinatorLayout, R.string.out_of_limit, Snackbar.LENGTH_SHORT).
-                            show();
+                    AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
                 } else {
                     handlePickPhotoClick();
                 }
                 break;
             case GetPhotoDialog.TYPE_CAMERA:
                 if (size == Constants.MAXIMUM_FRAMES) {
-                    Snackbar.make(mCoordinatorLayout, R.string.out_of_limit, Snackbar.LENGTH_SHORT).
-                            show();
+                    AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
                 } else {
                     Intent getPhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     if (getPhotoIntent.resolveActivity(getPackageManager()) != null) {
@@ -214,7 +219,6 @@ public class ShowGifDetailActivity extends BaseActivity implements
                         mLargeImage.setImageBitmap(mFrames.get(mCurrentPosition).getFrame());
                     }
                 }
-                mIsListChanged = true;
                 break;
         }
     }

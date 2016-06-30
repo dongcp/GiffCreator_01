@@ -539,7 +539,7 @@ class NeuQuant {
 
     /* defs for decreasing radius factor */
     protected static final int initrad = (netsize >> 3); /*
-	                                                         * for 256 cols, radius
+                                                             * for 256 cols, radius
 	                                                         * starts
 	                                                         */
 
@@ -566,9 +566,9 @@ class NeuQuant {
     protected static final int alpharadbias = (((int) 1) << alpharadbshift);
     protected int alphadec; /* biased by 10 bits */
 
-	  /*
-	   * Types and Global Variables --------------------------
-	   */
+    /*
+     * Types and Global Variables --------------------------
+     */
     protected byte[] thepicture; /* the input image itself */
 
     protected int lengthcount; /* lengthcount = H*W*3 */

@@ -8,10 +8,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -21,6 +23,7 @@ import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Frame;
 import com.framgia.gifcreator.ui.base.BaseActivity;
 import com.framgia.gifcreator.ui.widget.GetPhotoDialog;
+import com.framgia.gifcreator.util.AppHelper;
 import com.framgia.gifcreator.util.FileUtil;
 
 import java.io.File;
@@ -29,19 +32,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ShowListChosenImageActivity extends BaseActivity implements
-        ImageAdapter.OnItemClickListener, View.OnClickListener {
+        ImageAdapter.OnItemClickListener, View.OnClickListener, GetPhotoDialog.OnDialogItemChooseListener {
 
     private final int MIN_SIZE = 2;
     private final int MAX_SIZE = 10;
     private final String IMAGE_EXTENSION = ".jpg";
     private ImageAdapter mImageAdapter;
     private RecyclerView mRecyclerView;
+    private FloatingActionButton mFab;
     private CoordinatorLayout mCoordinatorLayout;
     private List<Frame> mAllItemList;
     private List<Frame> mGalleryList;
     private List<Frame> mCameraList;
     private List<Frame> mChosenList;
     private String mCurrentPhotoPath;
+    private int mRequestCode;
     private boolean isChosenList;
     private int mSourceType;
     private final int IMAGE_CAMERA = 1;
@@ -66,7 +71,8 @@ public class ShowListChosenImageActivity extends BaseActivity implements
         // Call activity to get photo
         Intent intent = getIntent();
         if (intent != null) {
-            switch (intent.getIntExtra(Constants.EXTRA_REQUEST, Constants.REQUEST_GALLERY)) {
+            mRequestCode = intent.getIntExtra(Constants.EXTRA_REQUEST, Constants.REQUEST_GALLERY);
+            switch (mRequestCode) {
                 case Constants.REQUEST_CAMERA:
                     mSourceType = IMAGE_CAMERA;
                     Intent getPhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -99,12 +105,14 @@ public class ShowListChosenImageActivity extends BaseActivity implements
     }
 
     @Override
-    protected int getMenuResId() {
-        return R.menu.menu_chosen_image;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_chosen_image, menu);
+        menu.findItem(R.id.action_preview_gif).setVisible(mRequestCode != Constants.REQUEST_GALLERY);
+        menu.findItem(R.id.action_open_list_chosen).setVisible(mRequestCode == Constants.REQUEST_GALLERY);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-
     protected String getActivityTitle() {
         return getString(R.string.title_show_chosen_images_activity);
     }
@@ -112,9 +120,10 @@ public class ShowListChosenImageActivity extends BaseActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
+            Frame frame;
             switch (requestCode) {
                 case Constants.REQUEST_CAMERA:
-                    Frame frame = new Frame(mCurrentPhotoPath);
+                    frame = new Frame(mCurrentPhotoPath);
                     mCameraList.add(frame);
                     refresh(mCameraList);
                     galleryAddPic();
@@ -138,8 +147,9 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                     if (!TextUtils.isEmpty(photoPath)) {
                         frame = mAllItemList.get(position);
                         frame.setPhotoPath(photoPath);
+                        frame.setFrame(null);
+                        mImageAdapter.notifyItemChanged(position);
                     }
-                    mImageAdapter.notifyItemChanged(position);
                     break;
             }
         }
@@ -203,42 +213,74 @@ public class ShowListChosenImageActivity extends BaseActivity implements
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.fab_camera:
-                mSourceType = IMAGE_CAMERA;
-                if (mAllItemList.size() == Constants.MAXIMUM_FRAMES) {
-                        Snackbar.make(mCoordinatorLayout,
-                                getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
-                    } else {
-                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        if (intent.resolveActivity(getPackageManager()) != null) {
-                            File photoFile = null;
-                            try {
-                                photoFile = createImageFile();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            if (photoFile != null) {
-                                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                                startActivityForResult(intent, Constants.REQUEST_CAMERA);
-                            }
+            case R.id.floating_button:
+                GetPhotoDialog dialog = new GetPhotoDialog(this);
+                dialog.setOnDialogItemChooseListener(this);
+                dialog.showDialog();
+                break;
+        }
+    }
+
+    @Override
+    public void onDialogItemChoose(int type) {
+        switch (type) {
+            case GetPhotoDialog.TYPE_CAMERA:
+                if (mChosenList.size() == Constants.MAXIMUM_FRAMES) {
+                    AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
+                } else {
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (intent.resolveActivity(getPackageManager()) != null) {
+                        File photoFile = null;
+                        try {
+                            photoFile = createImageFile();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (photoFile != null) {
+                            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                            startActivityForResult(intent, Constants.REQUEST_CAMERA);
                         }
                     }
-                    break;
-                case R.id.fab_gallery:
-                    mSourceType = IMAGE_GALLERY;
+                }
+                break;
+            case GetPhotoDialog.TYPE_GALLERY:
+                if (mChosenList.size() > Constants.MAXIMUM_FRAMES) {
+                    AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
+                } else {
                     isChosenList = false;
-                    if (mGalleryList.size() == 0) {
-                        mGalleryList = getImageListGallery();
-                    }
-                    refresh(mGalleryList);
+                    refresh(getImageListGallery());
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onRemoveItem(int position) {
+        if (isChosenList) {
+            switch (mSourceType) {
+                case IMAGE_CAMERA:
+                    UpdateStatefromList(mCameraList, mChosenList.get(position));
+                    mChosenList.remove(position);
+                    break;
+                case IMAGE_GALLERY:
+                    UpdateStatefromList(mGalleryList, mChosenList.get(position));
+                    mChosenList.remove(position);
                     break;
             }
+            refresh(mChosenList);
         }
+    }
+
+    @Override
+    public void showAlertNotification() {
+        AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
+    }
 
     private void findViews() {
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_choosing_image);
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
-        findViewById(R.id.floating_button).setOnClickListener(this);
+        mFab = (FloatingActionButton) findViewById(R.id.floating_button);
+        mFab.setOnClickListener(this);
     }
 
     private File createImageFile() throws IOException {
@@ -272,22 +314,15 @@ public class ShowListChosenImageActivity extends BaseActivity implements
         mAllItemList.clear();
         mAllItemList.addAll(frames);
         mImageAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onRemoveItem(int position) {
-        if (isChosenList) {
-            switch (mSourceType) {
-                case IMAGE_CAMERA:
-                    UpdateStatefromList(mCameraList, mChosenList.get(position));
-                    mChosenList.remove(position);
-                    break;
-                case IMAGE_GALLERY:
-                    UpdateStatefromList(mGalleryList, mChosenList.get(position));
-                    mChosenList.remove(position);
-                    break;
+        mFab.setVisibility(isChosenList ? View.VISIBLE : View.GONE);
+        Menu menu = mToolbar.getMenu();
+        if (menu != null) {
+            MenuItem item1 = menu.findItem(R.id.action_preview_gif);
+            MenuItem item2 = menu.findItem(R.id.action_open_list_chosen);
+            if (item1 != null && item2 != null) {
+                item1.setVisible(isChosenList);
+                item2.setVisible(!isChosenList);
             }
-            refresh(mChosenList);
         }
     }
 
@@ -298,12 +333,6 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                 frames.get(i).setStatus(false);
             }
         }
-    }
-
-    @Override
-    public void showAlertNotification() {
-        Snackbar.make(mCoordinatorLayout,
-                getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
     }
 
     private boolean isNormalImage(String filePath) {
