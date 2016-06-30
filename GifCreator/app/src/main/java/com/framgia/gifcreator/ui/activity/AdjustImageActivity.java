@@ -35,6 +35,7 @@ public class AdjustImageActivity extends BaseActivity implements
     private LinearLayout mBottomNavigationContainer;
     private Frame mFrame;
     private Bitmap mProcessedImage;
+    private MenuItem mItemApplyEffect;
     private List<BottomNavigationItem> mBottomNavigationMainItems;
     private List<BottomNavigationItem> mBottomNavigationAdjustItems;
     private int mBottomNavigationLevel;
@@ -72,6 +73,8 @@ public class AdjustImageActivity extends BaseActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_adjust_image, menu);
+        mItemApplyEffect = menu.findItem(R.id.action_apply_effect);
+        mItemApplyEffect.setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -88,6 +91,7 @@ public class AdjustImageActivity extends BaseActivity implements
             mBottomNavigationLevel = BOTTOM_NAVIGATION_LEVEL_2;
             mIsProcessing = false;
         } else if (title.equals(getString(R.string.bottom_navigation_adjust_item_blur))) {
+            showItemApplyEffect();
             mProcessedImage = ImageProcessing.blurImage(this, mFrame.getFrame());
             mAdjustImage.setImageBitmap(mProcessedImage);
             mIsProcessing = true;
@@ -106,6 +110,8 @@ public class AdjustImageActivity extends BaseActivity implements
                     makeBottomNavigation(mBottomNavigationMainItems);
                     mBottomNavigationLevel = BOTTOM_NAVIGATION_LEVEL_1;
                     mIsProcessing = false;
+                } else {
+                    saveProcessedImage();
                 }
                 break;
         }
@@ -115,6 +121,7 @@ public class AdjustImageActivity extends BaseActivity implements
     @Override
     public void onBackPressed() {
         if (mIsProcessing) {
+            if (mItemApplyEffect != null) mItemApplyEffect.setVisible(false);
             mAdjustImage.setImageBitmap(mFrame.getFrame());
             makeBottomNavigation(mBottomNavigationMainItems);
             mBottomNavigationLevel = BOTTOM_NAVIGATION_LEVEL_1;
@@ -128,24 +135,7 @@ public class AdjustImageActivity extends BaseActivity implements
                         setPositiveButton(R.string.button_yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent();
-                                intent.putExtra(Constants.EXTRA_POSITION, mPosition);
-                                Point size = new Point();
-                                getWindowManager().getDefaultDisplay().getSize(size);
-                                int screenWidth = size.x;
-                                int screenHeight = size.y;
-                                try {
-                                    if (mFrame.getFrame() != null) {
-                                        Bitmap bitmap = BitmapHelper.resizeBitmap(mFrame.getFrame(),
-                                                screenWidth, screenHeight);
-                                        intent.putExtra(Constants.EXTRA_PHOTO_PATH,
-                                                FileUtil.saveImage(AdjustImageActivity.this, bitmap));
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                setResult(RESULT_OK, intent);
-                                finish();
+                                saveProcessedImage();
                             }
                         }).
                         setNegativeButton(R.string.button_no, new DialogInterface.OnClickListener() {
@@ -214,5 +204,32 @@ public class AdjustImageActivity extends BaseActivity implements
             bottomNavigationItems.get(i).setOnBottomNavigationItemClickListener(this);
             if (i == size - 1) bottomNavigationItems.get(i).hideSeparator();
         }
+    }
+
+    private void showItemApplyEffect() {
+        if (mItemApplyEffect != null && !mItemApplyEffect.isVisible()) {
+            mItemApplyEffect.setVisible(true);
+        }
+    }
+
+    private void saveProcessedImage() {
+        Intent intent = new Intent();
+        intent.putExtra(Constants.EXTRA_POSITION, mPosition);
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+        int screenWidth = size.x;
+        int screenHeight = size.y;
+        try {
+            if (mFrame.getFrame() != null) {
+                Bitmap bitmap = BitmapHelper.resizeBitmap(mFrame.getFrame(),
+                        screenWidth, screenHeight);
+                intent.putExtra(Constants.EXTRA_PHOTO_PATH,
+                        FileUtil.saveImage(AdjustImageActivity.this, bitmap));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        setResult(RESULT_OK, intent);
+        finish();
     }
 }
