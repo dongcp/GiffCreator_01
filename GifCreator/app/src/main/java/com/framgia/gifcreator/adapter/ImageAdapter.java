@@ -10,6 +10,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 
 import com.framgia.gifcreator.R;
+import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Frame;
 import com.framgia.gifcreator.util.BitmapWorkerTask;
 
@@ -24,7 +25,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     private Context mContext;
     private OnItemClickListener mOnItemClickListener;
     private int mCount;
-    private final int LIMIT_ITEM = 10;
 
     public ImageAdapter(Context context, List<Frame> frames) {
         mContext = context;
@@ -64,9 +64,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 } else {
                     mCount--;
                 }
-                if (mCount > LIMIT_ITEM) {
+                if (mCount > Constants.MAXIMUM_FRAMES) {
                     mOnItemClickListener.showAlertNotification();
-                    mCount = 0;
                 }
             }
         });

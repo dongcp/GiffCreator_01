@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
@@ -69,8 +70,9 @@ public class AdjustImageActivity extends BaseActivity implements
     }
 
     @Override
-    protected int getMenuResId() {
-        return R.menu.menu_adjust_image;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_adjust_image, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.widget.AppCompatSeekBar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -43,6 +44,7 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
         mTextFps.setText(MessageFormat.format(getString(R.string.fps), DEFAULT_FPS + 1));
         mInterval = 1000 / DEFAULT_FPS;
         enableToolbar();
+        enableBackButton();
         loadFrames();
     }
 
@@ -52,8 +54,9 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
     }
 
     @Override
-    protected int getMenuResId() {
-        return R.menu.menu_preview_gif;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_preview_gif, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -77,7 +80,9 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
     @Override
     public void onBackPressed() {
         mCountDownTimer.cancel();
-        super.onBackPressed();
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     @Override
@@ -104,6 +109,9 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
                     photoPaths[i] = mFrames.get(i).getPhotoPath();
                 }
                 makingGifTask.execute(photoPaths);
+                break;
+            case android.R.id.home:
+                onBackPressed();
                 break;
         }
         return super.onOptionsItemSelected(item);

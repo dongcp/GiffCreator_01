@@ -18,14 +18,13 @@ public class BitmapHelper {
         BitmapFactory.decodeFile(path, options);
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         options.inJustDecodeBounds = false;
-        Bitmap bitmap = BitmapFactory.decodeFile(path, options);
-        float scaleW = (float) reqWidth / bitmap.getWidth();
-        float scaleH = (float) reqHeight / bitmap.getHeight();
-        float scale = (scaleW > scaleH) ? scaleW : scaleH;
-        Matrix matrix = new Matrix();
-        matrix.postScale(scale, scale);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(),
-                matrix, false);
+//        Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+//        float scaleW = (float) reqWidth / bitmap.getWidth();
+//        float scaleH = (float) reqHeight / bitmap.getHeight();
+//        float scale = (scaleW > scaleH) ? scaleW : scaleH;
+//        Matrix matrix = new Matrix();
+//        matrix.postScale(scale, scale);
+        return BitmapFactory.decodeFile(path, options);
     }
 
     public static Bitmap resizeBitmap(Bitmap bitmap, int reqWidth, int reqHeight) throws IOException {
@@ -35,14 +34,13 @@ public class BitmapHelper {
         BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         options.inJustDecodeBounds = false;
-        Bitmap image = BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
-        float scaleW = (float) reqWidth / image.getWidth();
-        float scaleH = (float) reqHeight / image.getHeight();
-        float scale = (scaleW > scaleH) ? scaleW : scaleH;
-        Matrix matrix = new Matrix();
-        matrix.postScale(scale, scale);
-        return Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(),
-                matrix, false);
+//        Bitmap image = BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
+//        float scaleW = (float) reqWidth / image.getWidth();
+//        float scaleH = (float) reqHeight / image.getHeight();
+//        float scale = (scaleW > scaleH) ? scaleW : scaleH;
+//        Matrix matrix = new Matrix();
+//        matrix.postScale(scale, scale);
+        return BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
     }
 
     public static byte[] convertBitmapToByteArray(Bitmap bitmap) throws IOException {

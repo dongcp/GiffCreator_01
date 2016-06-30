@@ -8,10 +8,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -21,6 +23,7 @@ import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Frame;
 import com.framgia.gifcreator.ui.base.BaseActivity;
 import com.framgia.gifcreator.ui.widget.GetPhotoDialog;
+import com.framgia.gifcreator.util.AppHelper;
 import com.framgia.gifcreator.util.FileUtil;
 
 import java.io.File;
@@ -36,10 +39,12 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
     private final String IMAGE_EXTENSION = ".jpg";
     private ImageAdapter mImageAdapter;
     private RecyclerView mRecyclerView;
+    private FloatingActionButton mFab;
     private CoordinatorLayout mCoordinatorLayout;
     private List<Frame> mAllItemList;
     private List<Frame> mChosenList;
     private String mCurrentPhotoPath;
+    private int mRequestCode;
     private boolean isChosenList;
 
     @Override
@@ -58,7 +63,8 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
         // Call activity to get photo
         Intent intent = getIntent();
         if (intent != null) {
-            switch (intent.getIntExtra(Constants.EXTRA_REQUEST, Constants.REQUEST_GALLERY)) {
+            mRequestCode = intent.getIntExtra(Constants.EXTRA_REQUEST, Constants.REQUEST_GALLERY);
+            switch (mRequestCode) {
                 case Constants.REQUEST_CAMERA:
                     Intent getPhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     if (getPhotoIntent.resolveActivity(getPackageManager()) != null) {
@@ -88,12 +94,14 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
     }
 
     @Override
-    protected int getMenuResId() {
-        return R.menu.menu_chosen_image;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_chosen_image, menu);
+        menu.findItem(R.id.action_preview_gif).setVisible(mRequestCode != Constants.REQUEST_GALLERY);
+        menu.findItem(R.id.action_open_list_chosen).setVisible(mRequestCode == Constants.REQUEST_GALLERY);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-
     protected String getActivityTitle() {
         return getString(R.string.title_show_chosen_images_activity);
     }
@@ -101,9 +109,10 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
+            Frame frame;
             switch (requestCode) {
                 case Constants.REQUEST_CAMERA:
-                    Frame frame = new Frame(mCurrentPhotoPath);
+                    frame = new Frame(mCurrentPhotoPath);
                     mAllItemList.add(frame);
                     mImageAdapter.notifyItemInserted(mAllItemList.indexOf(frame));
                     galleryAddPic();
@@ -127,8 +136,9 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
                     if (!TextUtils.isEmpty(photoPath)) {
                         frame = mAllItemList.get(position);
                         frame.setPhotoPath(photoPath);
+                        frame.setFrame(null);
+                        mImageAdapter.notifyItemChanged(position);
                     }
-                    mImageAdapter.notifyItemChanged(position);
                     break;
             }
         }
@@ -204,8 +214,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
         switch (type) {
             case GetPhotoDialog.TYPE_CAMERA:
                 if (mChosenList.size() == Constants.MAXIMUM_FRAMES) {
-                    Snackbar.make(mCoordinatorLayout,
-                            getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
+                    AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
                 } else {
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     if (intent.resolveActivity(getPackageManager()) != null) {
@@ -223,16 +232,35 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
                 }
                 break;
             case GetPhotoDialog.TYPE_GALLERY:
-                isChosenList = false;
-                refresh(getImageListGallery());
+                if (mChosenList.size() > Constants.MAXIMUM_FRAMES) {
+                    AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
+                } else {
+                    isChosenList = false;
+                    refresh(getImageListGallery());
+                }
                 break;
         }
+    }
+
+    @Override
+    public void onRemoveItem(int position) {
+        if (isChosenList) {
+            mChosenList.remove(position);
+            mImageAdapter.notifyItemRemoved(position);
+            mImageAdapter.notifyItemRangeChanged(position, mChosenList.size());
+        }
+    }
+
+    @Override
+    public void showAlertNotification() {
+        AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
     }
 
     private void findViews() {
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_choosing_image);
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
-        findViewById(R.id.floating_button).setOnClickListener(this);
+        mFab = (FloatingActionButton) findViewById(R.id.floating_button);
+        mFab.setOnClickListener(this);
     }
 
     private File createImageFile() throws IOException {
@@ -266,21 +294,16 @@ public class ShowListChosenImageActivity extends BaseActivity implements ImageAd
         mAllItemList.clear();
         mAllItemList.addAll(frames);
         mImageAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onRemoveItem(int position) {
-        if (isChosenList) {
-            mAllItemList.remove(position);
-            mImageAdapter.notifyItemRemoved(position);
-            mImageAdapter.notifyItemRangeChanged(position, mAllItemList.size());
+        mFab.setVisibility(isChosenList ? View.VISIBLE : View.GONE);
+        Menu menu = mToolbar.getMenu();
+        if (menu != null) {
+            MenuItem item1 = menu.findItem(R.id.action_preview_gif);
+            MenuItem item2 = menu.findItem(R.id.action_open_list_chosen);
+            if (item1 != null && item2 != null) {
+                item1.setVisible(isChosenList);
+                item2.setVisible(!isChosenList);
+            }
         }
-    }
-
-    @Override
-    public void showAlertNotification() {
-        Snackbar.make(mCoordinatorLayout,
-                getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
     }
 
     private boolean isNormalImage(String filePath) {
