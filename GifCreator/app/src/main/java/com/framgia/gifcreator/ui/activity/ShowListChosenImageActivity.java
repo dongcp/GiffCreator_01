@@ -43,6 +43,8 @@ public class ShowListChosenImageActivity extends BaseActivity implements
     private RecyclerView mRecyclerView;
     private FloatingActionButton mFab;
     private CoordinatorLayout mCoordinatorLayout;
+    private MenuItem mItemPreviewGif;
+    private MenuItem mItemOpenListChosen;
     private List<Frame> mAllItemList;
     private List<Frame> mGalleryList;
     private List<Frame> mCameraList;
@@ -75,6 +77,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
             switch (mRequestCode) {
                 case Constants.REQUEST_CAMERA:
                     mSourceType = IMAGE_CAMERA;
+                    isChosenList = false;
                     Intent getPhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     if (getPhotoIntent.resolveActivity(getPackageManager()) != null) {
                         File photoFile = null;
@@ -92,7 +95,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                 case Constants.REQUEST_GALLERY:
                     mSourceType = IMAGE_GALLERY;
                     isChosenList = false;
-                    if(mGalleryList.size()==0){
+                    if (mGalleryList.size() == 0) {
                         mGalleryList = getImageListGallery();
                     }
                     refresh(mGalleryList);
@@ -109,8 +112,10 @@ public class ShowListChosenImageActivity extends BaseActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_chosen_image, menu);
-        menu.findItem(R.id.action_preview_gif).setVisible(mRequestCode != Constants.REQUEST_GALLERY);
-        menu.findItem(R.id.action_open_list_chosen).setVisible(mRequestCode == Constants.REQUEST_GALLERY);
+        mItemPreviewGif = menu.findItem(R.id.action_preview_gif);
+        mItemOpenListChosen = menu.findItem(R.id.action_open_list_chosen);
+        mItemPreviewGif.setVisible(mRequestCode != Constants.REQUEST_GALLERY);
+        mItemOpenListChosen.setVisible(mRequestCode == Constants.REQUEST_GALLERY);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -125,7 +130,10 @@ public class ShowListChosenImageActivity extends BaseActivity implements
             Frame frame;
             switch (requestCode) {
                 case Constants.REQUEST_CAMERA:
+                    isChosenList = true;
+                    refreshToolbar();
                     frame = new Frame(mCurrentPhotoPath);
+                    frame.setChecked(true);
                     mCameraList.add(frame);
                     refresh(mCameraList);
                     galleryAddPic();
@@ -162,9 +170,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
         CursorLoader imageLoader = new CursorLoader(this,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA},
-                null,
-                null,
-                MediaStore.Images.Media._ID);
+                null, null, MediaStore.Images.Media._ID);
         Cursor imageCursor = imageLoader.loadInBackground();
         if (imageCursor.moveToLast()) {
             do {
@@ -231,6 +237,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                 if (mAllItemList.size() == Constants.MAXIMUM_FRAMES) {
                     AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
                 } else {
+                    isChosenList = false;
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     if (intent.resolveActivity(getPackageManager()) != null) {
                         File photoFile = null;
@@ -251,7 +258,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                     AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
                 } else {
                     isChosenList = false;
-                    if(mGalleryList.size()==0){
+                    if (mGalleryList.size() == 0) {
                         mGalleryList = getImageListGallery();
                     }
                     refresh(mGalleryList);
@@ -321,14 +328,13 @@ public class ShowListChosenImageActivity extends BaseActivity implements
         mAllItemList.addAll(frames);
         mImageAdapter.notifyDataSetChanged();
         mFab.setVisibility(isChosenList ? View.VISIBLE : View.GONE);
-        Menu menu = mToolbar.getMenu();
-        if (menu != null) {
-            MenuItem item1 = menu.findItem(R.id.action_preview_gif);
-            MenuItem item2 = menu.findItem(R.id.action_open_list_chosen);
-            if (item1 != null && item2 != null) {
-                item1.setVisible(isChosenList);
-                item2.setVisible(!isChosenList);
-            }
+        refreshToolbar();
+    }
+
+    private void refreshToolbar() {
+        if (mItemPreviewGif != null && mItemOpenListChosen != null) {
+            mItemPreviewGif.setVisible(isChosenList);
+            mItemOpenListChosen.setVisible(!isChosenList);
         }
     }
 
