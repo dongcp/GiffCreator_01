@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -14,8 +14,20 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/list_gif"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
+            android:layout_height="match_parent"
+            android:layout_below="@+id/toolbar" />
+
+        <TextView
+            android:id="@+id/text_notify"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/toolbar"
+            android:gravity="center"
+            android:text="@string/no_item"
+            android:textColor="@color/black"
+            android:textSize="@dimen/common_text_size_8"
+            android:visibility="gone" />
+    </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floating_button"

@@ -1,34 +1,49 @@
 package com.framgia.gifcreator.ui.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.framgia.gifcreator.R;
 import com.framgia.gifcreator.adapter.GifAdapter;
 import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Gif;
+import com.framgia.gifcreator.data.GifItem;
 import com.framgia.gifcreator.ui.base.BaseActivity;
 import com.framgia.gifcreator.ui.decoration.GridItemDecoration;
 import com.framgia.gifcreator.ui.decoration.LinearItemDecoration;
 import com.framgia.gifcreator.ui.widget.GetPhotoDialog;
 import com.framgia.gifcreator.util.FileUtil;
+import com.framgia.gifcreator.util.listener.OnListItemInteractListener;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener,
-        GetPhotoDialog.OnDialogItemChooseListener {
+        GetPhotoDialog.OnDialogItemChooseListener, OnListItemInteractListener {
 
+    private final int TYPE_SELECT = 0;
+    private final int TYPE_VIEW = 1;
+    private final int TYPE_DELETE = 2;
     private final int NUMBER_OF_COLUMNS = 2;
     private final String DOT = ".";
     private RecyclerView mGifRecyclerView;
+    private TextView mTextNotify;
+    private MenuItem mItemDelete;
+    private MenuItem mItemSelectAll;
     private GifAdapter mGifAdapter;
-    private List<Gif> mGifs;
+    private List<GifItem> mGifs;
+    private boolean mIsPlayingGif;
+    private boolean mIsAllSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +51,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         findViews();
         mGifs = new ArrayList<>();
         mGifAdapter = new GifAdapter(this, mGifs);
+        mGifAdapter.setOnListItemInteractListener(this);
         mGifRecyclerView.setAdapter(mGifAdapter);
     }
 
@@ -47,15 +63,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         for (int i = 0; i < size; i++) {
             mGifs.get(i).setState(false);
         }
-        if (mGifs.size() > 1) {
-            if (!(mGifRecyclerView.getLayoutManager() instanceof GridLayoutManager)) {
-                mGifRecyclerView.setLayoutManager(new GridLayoutManager(this, NUMBER_OF_COLUMNS));
-                mGifRecyclerView.addItemDecoration(new GridItemDecoration(this));
-            }
+        if (size == 0) {
+            showTextNotify();
         } else {
-            if (mGifRecyclerView.getLayoutManager() == null) {
-                mGifRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-                mGifRecyclerView.addItemDecoration(new LinearItemDecoration(this));
+            hideTextNotify();
+            if (size > 1) {
+                if (!(mGifRecyclerView.getLayoutManager() instanceof GridLayoutManager)) {
+                    mGifRecyclerView.setLayoutManager(new GridLayoutManager(this, NUMBER_OF_COLUMNS));
+                    mGifRecyclerView.addItemDecoration(new GridItemDecoration(this));
+                }
+            } else {
+                if (mGifRecyclerView.getLayoutManager() == null) {
+                    mGifRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+                    mGifRecyclerView.addItemDecoration(new LinearItemDecoration(this));
+                }
             }
         }
         mGifAdapter.notifyDataSetChanged();
@@ -64,6 +85,89 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     @Override
     protected int getLayoutResId() {
         return R.layout.activity_main;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        mItemDelete = menu.findItem(R.id.action_delete);
+        mItemSelectAll = menu.findItem(R.id.action_select_all);
+        mItemDelete.setVisible(false);
+        mItemSelectAll.setVisible(false);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                break;
+            case R.id.action_delete:
+                int gifsListSize = mGifs.size();
+                int numberOfChosenGifs = 0;
+                for (int i = 0; i < gifsListSize; i++) {
+                    if (mGifs.get(i).isChosen()) numberOfChosenGifs++;
+                    else break;
+                }
+                mIsAllSelected = (numberOfChosenGifs == gifsListSize);
+                if (mIsAllSelected) {
+                    for (int i = 0; i < gifsListSize; i++) {
+                        FileUtil.removeFile(mGifs.get(i).getGifPath());
+                    }
+                    mGifs.removeAll(mGifs);
+                    mGifAdapter.notifyItemRangeRemoved(0, gifsListSize);
+                    showTextNotify();
+                    mGifAdapter.setState(false);
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                    mItemDelete.setVisible(false);
+                    mItemSelectAll.setVisible(false);
+                } else {
+                    for (int i = 0; i < gifsListSize; i++) {
+                        GifItem gifItem = mGifs.get(i);
+                        if (gifItem.isChosen()) {
+                            FileUtil.removeFile(gifItem.getGifPath());
+                            mGifs.remove(i);
+                            gifsListSize = mGifs.size();
+                            mGifAdapter.notifyItemRemoved(i);
+                            mGifAdapter.notifyItemRangeChanged(i, gifsListSize);
+                            i--;
+                        }
+                    }
+                }
+                break;
+            case R.id.action_select_all:
+                int size = mGifs.size();
+                int count = 0;
+                for (int i = 0; i < size; i++) {
+                    if (mGifs.get(i).isChosen()) count++;
+                    else break;
+                }
+                mIsAllSelected = (count == size);
+                for (int i = 0; i < size; i++) {
+                    mGifs.get(i).setChosen(!mIsAllSelected);
+                }
+                mGifAdapter.notifyDataSetChanged();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mGifAdapter.isSelecting()) {
+            mGifAdapter.setState(false);
+            int size = mGifs.size();
+            for (int i = 0; i < size; i++) {
+                GifItem gifItem = mGifs.get(i);
+                gifItem.setChosen(false);
+                gifItem.showCheckbox(false);
+            }
+            mGifAdapter.notifyDataSetChanged();
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            mItemDelete.setVisible(false);
+            mItemSelectAll.setVisible(false);
+        } else super.onBackPressed();
     }
 
     @Override
@@ -93,8 +197,58 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         if (intent != null) startActivity(intent);
     }
 
+    @Override
+    public void onListItemClick(int position) {
+        GifItem gif = mGifs.get(position);
+        if (mIsPlayingGif && !gif.isPlaying()) {
+            resetGifState();
+            mIsPlayingGif = false;
+        }
+        if (!mIsPlayingGif && !gif.isPlaying()) {
+            setPlaying(gif, true);
+        } else {
+            setPlaying(gif, false);
+        }
+        mGifAdapter.notifyItemChanged(position);
+    }
+
+    @Override
+    public void onListItemLongClick(final int position) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setItems(R.array.gif_long_click, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case TYPE_SELECT:
+                        mGifAdapter.setState(true);
+                        int size = mGifs.size();
+                        for (int i = 0; i < size; i++) {
+                            mGifs.get(i).showCheckbox(true);
+                        }
+                        mGifs.get(position).setChosen(true);
+                        mGifAdapter.notifyDataSetChanged();
+                        enableBackButton();
+                        mItemDelete.setVisible(true);
+                        mItemSelectAll.setVisible(true);
+                        break;
+                    case TYPE_VIEW:
+                        break;
+                    case TYPE_DELETE:
+                        mGifAdapter.setState(false);
+                        FileUtil.removeFile(mGifs.get(position).getGifPath());
+                        mGifs.remove(position);
+                        mGifAdapter.notifyItemRemoved(position);
+                        mGifAdapter.notifyItemRangeChanged(position, mGifs.size());
+                        break;
+                }
+            }
+        });
+        dialogBuilder.show();
+    }
+
     private void findViews() {
         mGifRecyclerView = (RecyclerView) findViewById(R.id.list_gif);
+        mTextNotify = (TextView) findViewById(R.id.text_notify);
         findViewById(R.id.floating_button).setOnClickListener(this);
     }
 
@@ -108,8 +262,34 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             int indexOfLastDot = fileName.lastIndexOf(DOT);
             if (indexOfLastDot > 0 &&
                     fileName.substring(indexOfLastDot).equals(Constants.GIF_EXTENSION)) {
-                mGifs.add(new Gif(files[i].getPath()));
+                mGifs.add(new GifItem(files[i].getPath()));
             }
         }
+    }
+
+    private void resetGifState() {
+        int size = mGifs.size();
+        for (int i = 0; i < size; i++) {
+            if (mGifs.get(i).isPlaying()) {
+                mGifs.get(i).setState(false);
+                mGifAdapter.notifyItemChanged(i);
+                break;
+            }
+        }
+    }
+
+    private void setPlaying(Gif gif, boolean isPlaying) {
+        gif.setState(isPlaying);
+        mIsPlayingGif = isPlaying;
+    }
+
+    private void showTextNotify() {
+        mGifRecyclerView.setVisibility(View.GONE);
+        mTextNotify.setVisibility(View.VISIBLE);
+    }
+
+    private void hideTextNotify() {
+        mGifRecyclerView.setVisibility(View.VISIBLE);
+        mTextNotify.setVisibility(View.GONE);
     }
 }

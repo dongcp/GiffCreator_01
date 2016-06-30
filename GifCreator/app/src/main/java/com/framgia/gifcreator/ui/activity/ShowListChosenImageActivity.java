@@ -260,11 +260,11 @@ public class ShowListChosenImageActivity extends BaseActivity implements
         if (isChosenList) {
             switch (mSourceType) {
                 case IMAGE_CAMERA:
-                    UpdateStatefromList(mCameraList, mChosenList.get(position));
+                    UpdateStateFromList(mCameraList, mChosenList.get(position));
                     mChosenList.remove(position);
                     break;
                 case IMAGE_GALLERY:
-                    UpdateStatefromList(mGalleryList, mChosenList.get(position));
+                    UpdateStateFromList(mGalleryList, mChosenList.get(position));
                     mChosenList.remove(position);
                     break;
             }
@@ -327,11 +327,11 @@ public class ShowListChosenImageActivity extends BaseActivity implements
         }
     }
 
-    private void UpdateStatefromList(List<Frame> frames, Frame frame) {
+    private void UpdateStateFromList(List<Frame> frames, Frame frame) {
         int length = frames.size();
         for (int i = 0; i < length; i++) {
             if (frame.getPhotoPath().equals(frames.get(i).getPhotoPath())) {
-                frames.get(i).setStatus(false);
+                frames.get(i).setChecked(false);
             }
         }
     }

@@ -46,7 +46,7 @@ public class Frame {
         }
     }
 
-    public void setStatus(boolean isChosen) {
+    public void setChecked(boolean isChosen) {
         this.mIsChosen = isChosen;
     }
 

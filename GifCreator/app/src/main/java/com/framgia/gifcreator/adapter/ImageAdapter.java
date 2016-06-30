@@ -50,7 +50,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             @Override
             public void onClick(View v) {
                 holder.mCheckbox.setChecked(!holder.mCheckbox.isChecked());
-                mFrames.get(position).setStatus(holder.mCheckbox.isChecked());
+                mFrames.get(position).setChecked(holder.mCheckbox.isChecked());
                 if (!holder.mCheckbox.isChecked() && mOnItemClickListener != null) {
                     mOnItemClickListener.onRemoveItem(position);
                 }
