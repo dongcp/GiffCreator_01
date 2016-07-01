@@ -44,4 +44,6 @@
     <dimen name="thumbnail_pager_padding_left">70dp</dimen>
     <dimen name="gif_height">120dp</dimen>
     <dimen name="button_load_gif_size">50dp</dimen>
+    <dimen name="image_gif_max_width">300dp</dimen>
+    <dimen name="image_gif_max_height">400dp</dimen>
 </resources>

@@ -214,10 +214,22 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                     refresh(mChosenList);
                 }
                 break;
+            case android.R.id.home:
+                onBackPressed();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed() {
+        if (!isChosenList) {
+            isChosenList = true;
+            refresh(mChosenList);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
     @Override
     public void onClick(View v) {

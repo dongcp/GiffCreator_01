@@ -232,6 +232,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                         mItemSelectAll.setVisible(true);
                         break;
                     case TYPE_VIEW:
+                        Intent intent = new Intent(MainActivity.this, ViewGifActivity.class);
+                        intent.putExtra(Constants.EXTRA_GIF_PATH, mGifs.get(position).getGifPath());
+                        startActivity(intent);
                         break;
                     case TYPE_DELETE:
                         mGifAdapter.setState(false);

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar" />
+
+    <ImageView
+        android:id="@+id/image_gif"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:maxHeight="@dimen/image_gif_max_height"
+        android:maxWidth="@dimen/image_gif_max_width"
+        android:padding="@dimen/common_size_10" />
+</LinearLayout>
