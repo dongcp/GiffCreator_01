@@ -26,10 +26,6 @@
         <activity android:name=".ui.activity.AdjustImageActivity" />
         <activity android:name=".ui.activity.PreviewGifActivity" />
         <activity android:name=".ui.activity.ShowGifDetailActivity" />
-<<<<<<< HEAD
         <activity android:name=".ui.activity.ViewGifActivity" />
-=======
-        <activity android:name=".ui.activity.ImageDetailActivity" />
->>>>>>> apply image effect
     </application>
 </manifest>

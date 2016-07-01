@@ -25,8 +25,8 @@
             android:id="@+id/thumbnail_pager"
             android:layout_width="match_parent"
             android:layout_height="@dimen/thumbnail_pager_height"
-            android:paddingLeft="@dimen/thumbnail_pager_padding_left"
-            android:paddingRight="@dimen/common_size_5" />
+            android:paddingLeft="32dp"
+            android:paddingRight="20dp" />
 
         <TextView
             android:layout_width="wrap_content"

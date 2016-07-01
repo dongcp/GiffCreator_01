@@ -36,7 +36,7 @@ public class ThumbnailPagerAdapter extends PagerAdapter {
 
     @Override
     public float getPageWidth(int position) {
-        return 0.75f;
+        return 0.85f;
     }
 
     @Override

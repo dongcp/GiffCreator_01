@@ -36,8 +36,6 @@ public class ShowListChosenImageActivity extends BaseActivity implements
 
     private final int MIN_SIZE = 2;
     private final int MAX_SIZE = 10;
-    private final int IMAGE_CAMERA = 1;
-    private final int IMAGE_GALLERY = 2;
     private final String IMAGE_EXTENSION = ".jpg";
     private ImageAdapter mImageAdapter;
     private RecyclerView mRecyclerView;
@@ -51,7 +49,6 @@ public class ShowListChosenImageActivity extends BaseActivity implements
     private List<Frame> mChosenList;
     private String mCurrentPhotoPath;
     private int mRequestCode;
-    private int mSourceType;
     private boolean isChosenList;
 
     @Override
@@ -76,7 +73,6 @@ public class ShowListChosenImageActivity extends BaseActivity implements
             mRequestCode = intent.getIntExtra(Constants.EXTRA_REQUEST, Constants.REQUEST_GALLERY);
             switch (mRequestCode) {
                 case Constants.REQUEST_CAMERA:
-                    mSourceType = IMAGE_CAMERA;
                     isChosenList = false;
                     Intent getPhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     if (getPhotoIntent.resolveActivity(getPackageManager()) != null) {
@@ -93,7 +89,6 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                     }
                     break;
                 case Constants.REQUEST_GALLERY:
-                    mSourceType = IMAGE_GALLERY;
                     isChosenList = false;
                     if (mGalleryList.size() == 0) {
                         mGalleryList = getImageListGallery();
@@ -249,6 +244,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                 if (mAllItemList.size() == Constants.MAXIMUM_FRAMES) {
                     AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
                 } else {
+                    mRequestCode = Constants.REQUEST_CAMERA;
                     isChosenList = false;
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     if (intent.resolveActivity(getPackageManager()) != null) {
@@ -269,6 +265,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                 if (mAllItemList.size() > Constants.MAXIMUM_FRAMES) {
                     AppHelper.showSnackbar(mCoordinatorLayout, R.string.out_of_limit);
                 } else {
+                    mRequestCode = Constants.REQUEST_GALLERY;
                     isChosenList = false;
                     if (mGalleryList.size() == 0) {
                         mGalleryList = getImageListGallery();
@@ -282,17 +279,19 @@ public class ShowListChosenImageActivity extends BaseActivity implements
     @Override
     public void onRemoveItem(int position) {
         if (isChosenList) {
-            switch (mSourceType) {
-                case IMAGE_CAMERA:
-                    UpdateStateFromList(mCameraList, mChosenList.get(position));
-                    mChosenList.remove(position);
+            switch (mRequestCode) {
+                case Constants.REQUEST_CAMERA:
+                    mAllItemList.remove(position);
+                    mCameraList.remove(position);
+                    mImageAdapter.notifyItemRemoved(position);
+                    mImageAdapter.notifyItemRangeChanged(position, mAllItemList.size());
                     break;
-                case IMAGE_GALLERY:
+                case Constants.REQUEST_GALLERY:
                     UpdateStateFromList(mGalleryList, mChosenList.get(position));
                     mChosenList.remove(position);
+                    refresh(mChosenList);
                     break;
             }
-            refresh(mChosenList);
         }
     }
 
@@ -336,7 +335,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
     }
 
     public void refresh(List<Frame> frames) {
-        mAllItemList.clear();
+        if (mAllItemList.size() > 0) mAllItemList.clear();
         mAllItemList.addAll(frames);
         mImageAdapter.notifyDataSetChanged();
         mFab.setVisibility(isChosenList ? View.VISIBLE : View.GONE);
