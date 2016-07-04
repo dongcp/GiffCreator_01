@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.framgia.gifcreator">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
@@ -14,18 +16,27 @@
 
         <activity
             android:name=".ui.activity.MainActivity"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.ShowListChosenImageActivity" />
-        <activity android:name=".ui.activity.AdjustImageActivity" />
-        <activity android:name=".ui.activity.PreviewGifActivity" />
-        <activity android:name=".ui.activity.ShowGifDetailActivity" />
-        <activity android:name=".ui.activity.ViewGifActivity" />
+        <activity
+            android:name=".ui.activity.ShowListChosenImageActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".ui.activity.AdjustImageActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".ui.activity.PreviewGifActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".ui.activity.ShowGifDetailActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity
+            android:name=".ui.activity.ViewGifActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
     </application>
 </manifest>

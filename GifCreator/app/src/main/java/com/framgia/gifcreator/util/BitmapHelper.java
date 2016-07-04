@@ -19,6 +19,7 @@ public class BitmapHelper {
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         options.inJustDecodeBounds = false;
         Bitmap image = BitmapFactory.decodeFile(path, options);
+        if (image == null) return null;
         float scaleW = (float) reqWidth / image.getWidth();
         float scaleH = (float) reqHeight / image.getHeight();
         float scale = (scaleW > scaleH) ? scaleW : scaleH;
@@ -36,6 +37,7 @@ public class BitmapHelper {
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         options.inJustDecodeBounds = false;
         Bitmap image = BitmapFactory.decodeByteArray(imageData, 0, imageData.length, options);
+        if (image == null) return null;
         float scaleW = (float) reqWidth / image.getWidth();
         float scaleH = (float) reqHeight / image.getHeight();
         float scale = (scaleW > scaleH) ? scaleW : scaleH;

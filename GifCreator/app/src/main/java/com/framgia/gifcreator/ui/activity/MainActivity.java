@@ -3,6 +3,7 @@ package com.framgia.gifcreator.ui.activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,6 +23,7 @@ import com.framgia.gifcreator.ui.decoration.GridItemDecoration;
 import com.framgia.gifcreator.ui.decoration.LinearItemDecoration;
 import com.framgia.gifcreator.ui.widget.GetPhotoDialog;
 import com.framgia.gifcreator.util.FileUtil;
+import com.framgia.gifcreator.util.PermissionUtil;
 import com.framgia.gifcreator.util.listener.OnListItemInteractListener;
 
 import java.io.File;
@@ -38,10 +40,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     private final String DOT = ".";
     private RecyclerView mGifRecyclerView;
     private TextView mTextNotify;
+    private FloatingActionButton mFab;
     private MenuItem mItemDelete;
     private MenuItem mItemSelectAll;
     private GifAdapter mGifAdapter;
-    private List<GifItem> mGifs;
+    private List<GifItem> mGifs = new ArrayList<>();
     private boolean mIsPlayingGif;
     private boolean mIsAllSelected;
 
@@ -49,7 +52,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         findViews();
-        mGifs = new ArrayList<>();
+        PermissionUtil.checkPermission(this);
         mGifAdapter = new GifAdapter(this, mGifs);
         mGifAdapter.setOnListItemInteractListener(this);
         mGifRecyclerView.setAdapter(mGifAdapter);
@@ -122,6 +125,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                     getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                     mItemDelete.setVisible(false);
                     mItemSelectAll.setVisible(false);
+                    mFab.setVisibility(View.VISIBLE);
                 } else {
                     for (int i = 0; i < gifsListSize; i++) {
                         GifItem gifItem = mGifs.get(i);
@@ -167,6 +171,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             mItemDelete.setVisible(false);
             mItemSelectAll.setVisible(false);
+            mFab.setVisibility(View.VISIBLE);
         } else super.onBackPressed();
     }
 
@@ -186,12 +191,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
         Intent intent = null;
         switch (type) {
             case GetPhotoDialog.TYPE_CAMERA:
-                intent = new Intent(MainActivity.this, ShowListChosenImageActivity.class);
-                intent.putExtra(Constants.EXTRA_REQUEST, Constants.REQUEST_CAMERA);
+                if (PermissionUtil.isCameraPermissionGranted(this)) {
+                    intent = new Intent(MainActivity.this, ShowListChosenImageActivity.class);
+                    intent.putExtra(Constants.EXTRA_REQUEST, Constants.REQUEST_CAMERA);
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.error).setMessage(R.string.cannot_access_camera).show();
+                }
                 break;
             case GetPhotoDialog.TYPE_GALLERY:
-                intent = new Intent(MainActivity.this, ShowListChosenImageActivity.class);
-                intent.putExtra(Constants.EXTRA_REQUEST, Constants.REQUEST_GALLERY);
+                if (PermissionUtil.isStoragePermissionGranted(this)) {
+                    intent = new Intent(MainActivity.this, ShowListChosenImageActivity.class);
+                    intent.putExtra(Constants.EXTRA_REQUEST, Constants.REQUEST_GALLERY);
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.error).setMessage(R.string.cannot_access_gallery).show();
+                }
                 break;
         }
         if (intent != null) startActivity(intent);
@@ -230,6 +245,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
                         enableBackButton();
                         mItemDelete.setVisible(true);
                         mItemSelectAll.setVisible(true);
+                        mFab.setVisibility(View.GONE);
                         break;
                     case TYPE_VIEW:
                         Intent intent = new Intent(MainActivity.this, ViewGifActivity.class);
@@ -252,20 +268,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener,
     private void findViews() {
         mGifRecyclerView = (RecyclerView) findViewById(R.id.list_gif);
         mTextNotify = (TextView) findViewById(R.id.text_notify);
-        findViewById(R.id.floating_button).setOnClickListener(this);
+        mFab = (FloatingActionButton) findViewById(R.id.floating_button);
+        mFab.setOnClickListener(this);
     }
 
     private void getGifs() {
         File folder = new File(FileUtil.getAppFolderPath(this));
-        File[] files = folder.listFiles();
-        int length = files.length;
-        if (mGifs.size() > 0) mGifs.clear();
-        for (int i = 0; i < length; i++) {
-            String fileName = files[i].getName();
-            int indexOfLastDot = fileName.lastIndexOf(DOT);
-            if (indexOfLastDot > 0 &&
-                    fileName.substring(indexOfLastDot).equals(Constants.GIF_EXTENSION)) {
-                mGifs.add(new GifItem(files[i].getPath()));
+        if (folder != null) {
+            File[] files = folder.listFiles();
+            if (files != null) {
+                int length = files.length;
+                if (mGifs.size() > 0) mGifs.clear();
+                for (int i = 0; i < length; i++) {
+                    String fileName = files[i].getName();
+                    int indexOfLastDot = fileName.lastIndexOf(DOT);
+                    if (indexOfLastDot > 0 &&
+                            fileName.substring(indexOfLastDot).equals(Constants.GIF_EXTENSION)) {
+                        mGifs.add(new GifItem(files[i].getPath()));
+                    }
+                }
             }
         }
     }

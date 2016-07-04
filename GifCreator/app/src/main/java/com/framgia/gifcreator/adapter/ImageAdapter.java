@@ -6,12 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 
 import com.framgia.gifcreator.R;
 import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Frame;
+import com.framgia.gifcreator.ui.activity.ShowListChosenImageActivity;
+import com.framgia.gifcreator.util.AppHelper;
 import com.framgia.gifcreator.util.BitmapWorkerTask;
 
 import java.util.List;
@@ -24,7 +25,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     private List<Frame> mFrames;
     private Context mContext;
     private OnItemClickListener mOnItemClickListener;
-    private int mCount;
 
     public ImageAdapter(Context context, List<Frame> frames) {
         mContext = context;
@@ -49,23 +49,32 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         holder.mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                holder.mCheckbox.setChecked(!holder.mCheckbox.isChecked());
-                mFrames.get(position).setChecked(holder.mCheckbox.isChecked());
-                if (!holder.mCheckbox.isChecked() && mOnItemClickListener != null) {
-                    mOnItemClickListener.onRemoveItem(position);
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(position);
                 }
             }
         });
-        holder.mCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        holder.mCheckbox.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    mCount++;
+            public void onClick(View v) {
+                if (!ShowListChosenImageActivity.sCanAdjustFrame) {
+                    if (ShowListChosenImageActivity.sNumberOfFrames < Constants.MAXIMUM_FRAMES) {
+                        frame.setChecked(!frame.isChosen());
+                        if (frame.isChosen()) {
+                            ShowListChosenImageActivity.sNumberOfFrames++;
+                        } else {
+                            ShowListChosenImageActivity.sNumberOfFrames--;
+                        }
+                    } else {
+                        AppHelper.showSnackbar(ShowListChosenImageActivity.sCoordinatorLayout,
+                                R.string.out_of_limit);
+                        frame.setChecked(false);
+                    }
+                    notifyItemChanged(position);
                 } else {
-                    mCount--;
-                }
-                if (mCount > Constants.MAXIMUM_FRAMES) {
-                    mOnItemClickListener.showAlertNotification();
+                    if (mOnItemClickListener != null) {
+                        mOnItemClickListener.onRemoveItem(position);
+                    }
                 }
             }
         });
@@ -81,9 +90,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     }
 
     public interface OnItemClickListener {
-        void onRemoveItem(int position);
 
-        void showAlertNotification();
+        void onItemClick(int position);
+
+        void onRemoveItem(int position);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

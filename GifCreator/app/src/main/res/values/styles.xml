@@ -7,6 +7,12 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="windowNoTitle">true</item>
+        <item name="actionMenuTextColor">@color/white</item>
+        <item name="actionButtonStyle">@style/AppTheme.ActionButtonStyle</item>
+    </style>
+
+    <style name="AppTheme.ActionButtonStyle" parent="@style/Widget.AppCompat.ActionButton">
+        <item name="textAllCaps">false</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,17 +31,27 @@ import com.framgia.gifcreator.util.BitmapWorkerTask;
 import com.framgia.gifcreator.util.FileUtil;
 import com.framgia.gifcreator.util.HandlingImageAsyncTask;
 import com.framgia.gifcreator.util.ImageProcessing;
+import com.framgia.gifcreator.util.PermissionUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AdjustImageActivity extends BaseActivity implements
-        BottomNavigationItem.OnBottomNavigationItemClickListener, HandlingImageAsyncTask.OnProgressListener, AdjustImageBar.OnAdjustImageBarItemInteractListener {
+        BottomNavigationItem.OnBottomNavigationItemClickListener,
+        HandlingImageAsyncTask.OnProgressListener,
+        AdjustImageBar.OnAdjustImageBarItemInteractListener {
 
     private final int BOTTOM_NAVIGATION_LEVEL_1 = 1;
     private final int BOTTOM_NAVIGATION_LEVEL_2 = 2;
     private final float IMAGE_VALUE = 127;
+    private final int RED = 0;
+    private final int GREEN = 1;
+    private final int BLUE = 2;
+    private final int ALPHA = 3;
+    private final int CONTRAST = 4;
+    private final int START_PROGRESS = 127;
+    private final int MAX_PROGRESS = 255;
     private ImageView mAdjustImage;
     private LinearLayout mBottomNavigationContainer;
     private Frame mFrame;
@@ -52,10 +61,6 @@ public class AdjustImageActivity extends BaseActivity implements
     private List<BottomNavigationItem> mBottomNavigationAdjustItems;
     private List<BottomNavigationItem> mBottomNavigationColorItems;
     private Bitmap mOriginImage;
-    private int mBottomNavigationLevel;
-    private int mPosition;
-    private boolean mIsFirst;
-    private boolean mIsProcessing;
     private AdjustImageBar mAdjustmentImageBar;
     private HandlingImageAsyncTask mHandlingImageAsynctask;
     private ProgressDialog mProgressDialog;
@@ -64,14 +69,11 @@ public class AdjustImageActivity extends BaseActivity implements
     private NegativeEffect mNegativeEffect;
     private ColorEffect mColorEffect;
     private ContrastEffect mContrastEffect;
+    private int mBottomNavigationLevel;
+    private int mPosition;
+    private boolean mIsFirst;
+    private boolean mIsProcessing;
     private int mEffectType;
-    private final int RED = 0;
-    private final int GREEN = 1;
-    private final int BLUE = 2;
-    private final int ALPHA = 3;
-    private final int CONTRAST = 4;
-    private final int START_PROGRESS = 127;
-    private final int MAX_PROGRESS = 255;
 
     @Override
 
@@ -331,24 +333,29 @@ public class AdjustImageActivity extends BaseActivity implements
     }
 
     private void saveProcessedImage() {
-        Intent intent = new Intent();
-        intent.putExtra(Constants.EXTRA_POSITION, mPosition);
-        Point size = new Point();
-        getWindowManager().getDefaultDisplay().getSize(size);
-        int screenWidth = size.x;
-        int screenHeight = size.y;
-        try {
-            if (mFrame.getFrame() != null) {
-                Bitmap bitmap = BitmapHelper.resizeBitmap(mFrame.getFrame(),
-                        screenWidth, screenHeight);
-                intent.putExtra(Constants.EXTRA_PHOTO_PATH,
-                        FileUtil.saveImage(AdjustImageActivity.this, bitmap));
+        if (PermissionUtil.isStoragePermissionGranted(this)) {
+            Intent intent = new Intent();
+            intent.putExtra(Constants.EXTRA_POSITION, mPosition);
+            Point size = new Point();
+            getWindowManager().getDefaultDisplay().getSize(size);
+            int screenWidth = size.x;
+            int screenHeight = size.y;
+            try {
+                if (mFrame.getFrame() != null) {
+                    Bitmap bitmap = BitmapHelper.resizeBitmap(mFrame.getFrame(),
+                            screenWidth, screenHeight);
+                    intent.putExtra(Constants.EXTRA_PHOTO_PATH,
+                            FileUtil.saveImage(AdjustImageActivity.this, bitmap));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            setResult(RESULT_OK, intent);
+            finish();
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.error).setMessage(R.string.cannot_save).show();
         }
-        setResult(RESULT_OK, intent);
-        finish();
     }
 
     public void setEffect(EditingEffect effect) {
@@ -380,7 +387,6 @@ public class AdjustImageActivity extends BaseActivity implements
         switch (button) {
             case AdjustImageBar.BUTTON_COMPLETE:
 //                saveImage();
-                Log.e("Aloha", "aloha");
                 break;
             case AdjustImageBar.BUTTON_CANCEL:
                 mAdjustmentImageBar.setVisibility(View.INVISIBLE);

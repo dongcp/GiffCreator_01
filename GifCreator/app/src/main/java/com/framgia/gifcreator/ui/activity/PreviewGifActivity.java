@@ -3,6 +3,7 @@ package com.framgia.gifcreator.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,12 +17,13 @@ import com.framgia.gifcreator.data.Frame;
 import com.framgia.gifcreator.ui.base.BaseActivity;
 import com.framgia.gifcreator.util.LoadFrameTask;
 import com.framgia.gifcreator.util.MakingGifTask;
+import com.framgia.gifcreator.util.PermissionUtil;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener, LoadFrameTask.OnLoadCompleteListener {
+public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener, LoadFrameTask.OnLoadCompleteListener, MakingGifTask.OnFinishMakingGif {
 
     private final int MAX_FPS = 9;
     private final int DEFAULT_FPS = 4;
@@ -101,14 +103,20 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
                 mImagePreviewGif.setImageBitmap(null);
                 break;
             case R.id.action_make_gif:
-                MakingGifTask makingGifTask =
-                        new MakingGifTask(this, mSeekBarAdjustFps.getProgress() + 1);
-                int numberOfFrames = mFrames.size();
-                String[] photoPaths = new String[numberOfFrames];
-                for (int i = 0; i < numberOfFrames; i++) {
-                    photoPaths[i] = mFrames.get(i).getPhotoPath();
+                if (PermissionUtil.isStoragePermissionGranted(this)) {
+                    MakingGifTask makingGifTask =
+                            new MakingGifTask(this, mSeekBarAdjustFps.getProgress() + 1);
+                    int numberOfFrames = mFrames.size();
+                    String[] photoPaths = new String[numberOfFrames];
+                    for (int i = 0; i < numberOfFrames; i++) {
+                        photoPaths[i] = mFrames.get(i).getPhotoPath();
+                    }
+                    makingGifTask.setOnFinishMakingGif(this);
+                    makingGifTask.execute(photoPaths);
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.error).setMessage(R.string.cannot_export_gif).show();
                 }
-                makingGifTask.execute(photoPaths);
                 break;
             case android.R.id.home:
                 onBackPressed();
@@ -140,6 +148,13 @@ public class PreviewGifActivity extends BaseActivity implements SeekBar.OnSeekBa
     @Override
     public void onLoadComplete() {
         startPreview();
+    }
+
+    @Override
+    public void onFinishMakingGif(String gifPath) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     private void findViews() {
