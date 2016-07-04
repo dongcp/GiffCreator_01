@@ -26,5 +26,5 @@
         android:layout_centerVertical="true"
         android:layout_marginRight="@dimen/common_size_5"
         android:padding="@dimen/common_size_5"
-        android:src="@drawable/ic_save" />
+        android:src="@drawable/ic_chosen" />
 </merge>

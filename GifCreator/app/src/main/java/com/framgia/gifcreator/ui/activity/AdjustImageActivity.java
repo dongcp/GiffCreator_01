@@ -1,7 +1,5 @@
 package com.framgia.gifcreator.ui.activity;
 
-import android.animation.AnimatorInflater;
-import android.animation.AnimatorSet;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -46,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AdjustImageActivity extends BaseActivity implements
@@ -66,14 +65,14 @@ public class AdjustImageActivity extends BaseActivity implements
     private ImageView mAdjustImage;
     private LinearLayout mBottomNavigationContainer;
     private Frame mFrame;
+    private Bitmap mOriginImage;
     private Bitmap mProcessedImage;
     private MenuItem mItemApplyEffect;
     private List<BottomNavigationItem> mBottomNavigationMainItems;
     private List<BottomNavigationItem> mBottomNavigationAdjustItems;
     private List<BottomNavigationItem> mBottomNavigationColorItems;
-    private Bitmap mOriginImage;
     private AdjustImageBar mAdjustmentImageBar;
-    private HandlingImageAsyncTask mHandlingImageAsynctask;
+    private HandlingImageAsyncTask mHandlingImageAsyncTask;
     private ProgressDialog mProgressDialog;
     private RotationEffect mRotationEffect;
     private GrayScaleEffect mGrayScaleEffect;
@@ -81,17 +80,15 @@ public class AdjustImageActivity extends BaseActivity implements
     private ColorEffect mColorEffect;
     private ContrastEffect mContrastEffect;
     private Uri mImageUri;
-    private AnimatorSet mSlideUp;
-    private AnimatorSet mSlideDown;
     private HorizontalScrollView mHorizontalScrollView;
     private int mBottomNavigationLevel;
     private int mPosition;
     private boolean mIsFirst;
     private boolean mIsProcessing;
+    private boolean mIsImageEdited;
     private int mEffectType;
 
     @Override
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         findViews();
@@ -99,7 +96,6 @@ public class AdjustImageActivity extends BaseActivity implements
         mIsFirst = true;
         init();
         initBottomNavigation();
-        initAnimator();
         mAdjustImage.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
@@ -108,13 +104,15 @@ public class AdjustImageActivity extends BaseActivity implements
                             BitmapWorkerTask worker = new BitmapWorkerTask(mAdjustImage, mFrame, true);
                             worker.execute(BitmapWorkerTask.TASK_DECODE_FILE, mFrame.getPhotoPath());
                             mIsFirst = false;
+                            mAdjustmentImageBar.getLayoutParams().height = mHorizontalScrollView.getHeight();
                         }
                     }
                 }
         );
         enableBackButton();
         mAdjustmentImageBar.setOnAdjustImageBarItemInteractListener(this);
-        mOriginImage = mFrame.getFrame();
+        mAdjustmentImageBar.setMaxValue(MAX_PROGRESS);
+        mAdjustmentImageBar.setProgress(START_PROGRESS);
     }
 
     @Override
@@ -137,94 +135,71 @@ public class AdjustImageActivity extends BaseActivity implements
 
     @Override
     public void onItemClick(BottomNavigationItem item) {
+        if (mOriginImage == null && mFrame.getFrame() != null) {
+            mOriginImage = BitmapHelper.copy(mFrame.getFrame());
+        }
         String title = item.getTitle();
-        mProcessedImage = mFrame.getFrame();
-        mAdjustImage.setImageBitmap(mProcessedImage);
+        mAdjustImage.setImageBitmap(mOriginImage);
         if (title.equals(getString(R.string.bottom_navigation_main_item_adjust))) {
             makeBottomNavigation(mBottomNavigationAdjustItems);
             mBottomNavigationLevel = BOTTOM_NAVIGATION_LEVEL_2;
             mIsProcessing = false;
         } else if (title.equals(getString(R.string.bottom_navigation_adjust_item_blur))) {
             showItemApplyEffect();
-            mProcessedImage = ImageProcessing.blurImage(this, mFrame.getFrame());
+            mProcessedImage = ImageProcessing.blurImage(this, mOriginImage);
             mAdjustImage.setImageBitmap(mProcessedImage);
             mIsProcessing = true;
-//<<<<<<< HEAD
-//            closeSeekbar();
-//        } else if (title.equals(getString(R.string.bottom_navigation_adjust_item_grayscale))) {
-//            setEffect(mGrayScaleEffect);
-//            mIsProcessing = true;
-//            closeSeekbar();
-//        } else if (title.equals(getString(R.string.bottom_navigation_adjust_item_negative))) {
-//            setEffect(mNegativeEffect);
-//            mIsProcessing = true;
-//            closeSeekbar();
-//        } else if (title.equals(getString(R.string.bottom_navigation_main_item_orientation))) {
-//            setEffect(mRotationEffect);
-//            mIsProcessing = true;
-//            closeSeekbar();
-//        } else if (title.equals(getString(R.string.bottom_navigation_main_item_color))) {
-//=======
         } else if (title.equals(getString(R.string.bottom_navigation_adjust_item_gray_scale))) {
+            showItemApplyEffect();
             setEffect(mGrayScaleEffect);
             mIsProcessing = true;
         } else if (title.equals(getString(R.string.bottom_navigation_adjust_item_negative))) {
+            showItemApplyEffect();
             setEffect(mNegativeEffect);
             mIsProcessing = true;
         } else if (title.equals(getString(R.string.bottom_navigation_main_item_orientation))) {
+            showItemApplyEffect();
+            if (mProcessedImage != null) mProcessedImage = null;
             setEffect(mRotationEffect);
             mIsProcessing = true;
         } else if (title.equals(getString(R.string.bottom_navigation_main_item_color))) {
-            setupSeekbar(true);
+            showItemApplyEffect();
+            openSeekbar();
             makeBottomNavigation(mBottomNavigationColorItems);
             mBottomNavigationLevel = BOTTOM_NAVIGATION_LEVEL_2;
-            mIsProcessing = false;
+            mIsProcessing = true;
         } else if (title.equals(getString(R.string.bottom_navigation_blue_color))) {
-//<<<<<<< HEAD
-//            setupSeekbar();
-//            mEffectType = BLUE;
-//            mIsProcessing = true;
-//        } else if (title.equals(getString(R.string.bottom_navigation_red_color))) {
-//            setupSeekbar();
-//            mEffectType = RED;
-//            mIsProcessing = true;
-//        } else if (title.equals(getString(R.string.bottom_navigation_green_color))) {
-//            setupSeekbar();
-//            mEffectType = GREEN;
-//            mIsProcessing = true;
-//        } else if (title.equals(getString(R.string.bottom_navigation_alpha_color))) {
-//            setupSeekbar();
-//            mEffectType = ALPHA;
-//            mIsProcessing = true;
-//        } else if (title.equals(getString(R.string.bottom_navigation_adjust_item_contrast))) {
-//            setupSeekbar();
-//            mEffectType = CONTRAST;
-//            mIsProcessing = true;
-//=======
-            setupSeekbar(true);
+            showItemApplyEffect();
+            openSeekbar();
             mEffectType = BLUE;
             mIsProcessing = true;
         } else if (title.equals(getString(R.string.bottom_navigation_red_color))) {
-            setupSeekbar(true);
+            showItemApplyEffect();
+            openSeekbar();
             mEffectType = RED;
             mIsProcessing = true;
         } else if (title.equals(getString(R.string.bottom_navigation_green_color))) {
-            setupSeekbar(true);
+            showItemApplyEffect();
+            openSeekbar();
             mEffectType = GREEN;
             mIsProcessing = true;
         } else if (title.equals(getString(R.string.bottom_navigation_alpha_color))) {
-            setupSeekbar(true);
+            showItemApplyEffect();
+            openSeekbar();
             mEffectType = ALPHA;
             mIsProcessing = true;
         } else if (title.equals(getString(R.string.bottom_navigation_adjust_item_contrast))) {
-            setupSeekbar(true);
+            showItemApplyEffect();
+            openSeekbar();
             mEffectType = CONTRAST;
             mIsProcessing = true;
         } else if (title.equals(getString(R.string.bottom_navigation_main_item_crop))) {
-            startCrop();
-            mIsProcessing = true;
+            if (PermissionUtil.isStoragePermissionGranted(this)) {
+                saveProcessedImage();
+                startCrop();
+                mIsProcessing = true;
+            }
         }
-
     }
 
     @Override
@@ -235,15 +210,15 @@ public class AdjustImageActivity extends BaseActivity implements
                 break;
             case R.id.action_apply_effect:
                 if (mIsProcessing) {
-                    mFrame.setFrame(mProcessedImage);
+                    mOriginImage = BitmapHelper.copy(mProcessedImage);
+                    mProcessedImage = null;
                     makeBottomNavigation(mBottomNavigationMainItems);
+                    closeSeekbar();
                     mBottomNavigationLevel = BOTTOM_NAVIGATION_LEVEL_1;
                     mIsProcessing = false;
-//<<<<<<< HEAD
-//                } else {
-//                    saveProcessedImage();
-//=======
-                    saveImage();
+                    mIsImageEdited = true;
+                } else {
+                    backToPreviousActivity();
                 }
                 break;
         }
@@ -253,8 +228,10 @@ public class AdjustImageActivity extends BaseActivity implements
     @Override
     public void onBackPressed() {
         if (mIsProcessing) {
-            if (mItemApplyEffect != null) mItemApplyEffect.setVisible(false);
-            mAdjustImage.setImageBitmap(mFrame.getFrame());
+            if (mItemApplyEffect != null && !mIsImageEdited) mItemApplyEffect.setVisible(false);
+            if (mAdjustmentImageBar.getVisibility() == View.VISIBLE) closeSeekbar();
+            mProcessedImage = null;
+            mAdjustImage.setImageBitmap(mOriginImage);
             makeBottomNavigation(mBottomNavigationMainItems);
             mBottomNavigationLevel = BOTTOM_NAVIGATION_LEVEL_1;
             mIsProcessing = false;
@@ -267,7 +244,7 @@ public class AdjustImageActivity extends BaseActivity implements
                         setPositiveButton(R.string.button_yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                saveProcessedImage();
+                                backToPreviousActivity();
                             }
                         }).
                         setNegativeButton(R.string.button_no, new DialogInterface.OnClickListener() {
@@ -283,42 +260,106 @@ public class AdjustImageActivity extends BaseActivity implements
         }
     }
 
-//    private void setupSeekbar() {
-//        mAdjustmentImageBar.setVisibility(View.VISIBLE);
-//        mAdjustmentImageBar.setProgress(START_PROGRESS);
-//        mAdjustmentImageBar.setMaxValue(MAX_PROGRESS);
-//=======
-
-    private void setupSeekbar(boolean isVisible) {
-        mSlideDown.setTarget(isVisible ? mBottomNavigationContainer : mAdjustmentImageBar);
-        mAdjustmentImageBar.setProgress(START_PROGRESS);
-        mAdjustmentImageBar.setMaxValue(MAX_PROGRESS);
-        mHorizontalScrollView.setHorizontalScrollBarEnabled(true);
-        mSlideDown.start();
-        mSlideUp.setTarget(isVisible ? mAdjustmentImageBar : mBottomNavigationContainer);
-        mHorizontalScrollView.setHorizontalScrollBarEnabled(false);
-        mSlideUp.start();
+    @Override
+    public void onButtonClickListener(@AdjustImageBar.AdjustImageBarButtonDef int button) {
+        switch (button) {
+            case AdjustImageBar.BUTTON_COMPLETE:
+                break;
+            case AdjustImageBar.BUTTON_CANCEL:
+                mProcessedImage = null;
+                mOriginImage = null;
+                mOriginImage = BitmapHelper.copy(mFrame.getFrame());
+                mAdjustImage.setImageBitmap(mOriginImage);
+                openSeekbar();
+                break;
+        }
     }
 
-    private void initAnimator() {
-        mSlideUp = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.slide_up_animator);
-        mSlideDown = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.slide_down_animator);
+    @Override
+    public void onSeekBarValueChange(int progress) {
+        float progressColorValue = progress - IMAGE_VALUE;
+        switch (mEffectType) {
+            case RED:
+                mColorEffect = new ColorEffect(progressColorValue, ColorEffect.Type.RED);
+                break;
+            case BLUE:
+                mColorEffect = new ColorEffect(progressColorValue, ColorEffect.Type.BLUE);
+                break;
+            case GREEN:
+                mColorEffect = new ColorEffect(progressColorValue, ColorEffect.Type.GREEN);
+                break;
+            case ALPHA:
+                mColorEffect = new ColorEffect(progressColorValue, ColorEffect.Type.ALPHA);
+                break;
+            case CONTRAST:
+                mContrastEffect = new ContrastEffect(progress);
+                break;
+        }
+        if (mEffectType == CONTRAST) {
+            setEffect(mContrastEffect);
+        } else {
+            setEffect(mColorEffect);
+        }
+    }
+
+    @Override
+    public void onHandleFinish(Bitmap bitmap) {
+        mProcessedImage = BitmapHelper.copy(bitmap);
+        mAdjustImage.setImageBitmap(mProcessedImage);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            mImageUri = result.getUri();
+            try {
+                mOriginImage = null;
+                mOriginImage = getImageFromUri(getApplicationContext(), mImageUri);
+                mIsProcessing = false;
+                showItemApplyEffect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mAdjustImage.setImageBitmap(mOriginImage);
+        }
+    }
+
+    private void backToPreviousActivity() {
+        if (PermissionUtil.isStoragePermissionGranted(AdjustImageActivity.this)) {
+            saveProcessedImage();
+            Intent intent = new Intent();
+            intent.putExtra(Constants.EXTRA_POSITION, mPosition);
+            intent.putExtra(Constants.EXTRA_PHOTO_PATH, mFrame.getPhotoPath());
+            setResult(RESULT_OK, intent);
+            finish();
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(AdjustImageActivity.this);
+            builder.setTitle(R.string.error).
+                    setMessage(R.string.cannot_save).
+                    setCancelable(false).
+                    setNeutralButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            setResult(RESULT_CANCELED);
+                            finish();
+                        }
+                    }).show();
+        }
+    }
+
+    private void openSeekbar() {
+        if (mAdjustmentImageBar.getVisibility() == View.GONE) {
+            mAdjustmentImageBar.setVisibility(View.VISIBLE);
+            mHorizontalScrollView.setVisibility(View.GONE);
+        }
     }
 
     private void closeSeekbar() {
-        mAdjustmentImageBar.setVisibility(View.INVISIBLE);
-    }
-
-    private void saveImage() {
-        Intent intent = new Intent();
-        intent.putExtra(Constants.EXTRA_POSITION, mPosition);
-        try {
-            intent.putExtra(Constants.EXTRA_PHOTO_PATH, FileUtil.saveImage(this, mProcessedImage));
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (mAdjustmentImageBar.getVisibility() == View.VISIBLE) {
+            mAdjustmentImageBar.setVisibility(View.GONE);
+            mHorizontalScrollView.setVisibility(View.VISIBLE);
         }
-        setResult(RESULT_OK, intent);
-        finish();
     }
 
     private void findViews() {
@@ -334,8 +375,6 @@ public class AdjustImageActivity extends BaseActivity implements
         if (intent != null) {
             mPosition = intent.getIntExtra(Constants.EXTRA_POSITION, 0);
             mFrame.setPhotoPath(intent.getStringExtra(Constants.EXTRA_PHOTO_PATH));
-            String imagePath = intent.getStringExtra(Constants.EXTRA_PHOTO_PATH);
-            mImageUri = Uri.fromFile(new File(imagePath));
         }
     }
 
@@ -373,25 +412,6 @@ public class AdjustImageActivity extends BaseActivity implements
                     getString(R.string.bottom_navigation_adjust_item_gray_scale), R.drawable.ic_blur));
             mBottomNavigationAdjustItems.add(new BottomNavigationItem(this,
                     getString(R.string.bottom_navigation_adjust_item_negative), R.drawable.ic_blur));
-//<<<<<<< HEAD
-//        }
-//    }
-//
-//    private void initBottomColorItems() {
-//        if (mBottomNavigationColorItems == null || mBottomNavigationColorItems.size() == 0) {
-//            mBottomNavigationColorItems = new ArrayList<>();
-//            mBottomNavigationColorItems.add(new BottomNavigationItem(this,
-//                    getString(R.string.bottom_navigation_green_color), R.drawable.ic_color_red));
-//            mBottomNavigationColorItems.add(new BottomNavigationItem(this,
-//                    getString(R.string.bottom_navigation_blue_color), R.drawable.ic_color_blue));
-//            mBottomNavigationColorItems.add(new BottomNavigationItem(this,
-//                    getString(R.string.bottom_navigation_red_color), R.drawable.ic_color_green));
-//            mBottomNavigationColorItems.add(new BottomNavigationItem(this,
-//                    getString(R.string.bottom_navigation_alpha_color), R.drawable.ic_color_alpha));
-//        }
-//    }
-//
-//=======
         }
     }
 
@@ -426,42 +446,29 @@ public class AdjustImageActivity extends BaseActivity implements
     }
 
     private void saveProcessedImage() {
-        if (PermissionUtil.isStoragePermissionGranted(this)) {
-            Intent intent = new Intent();
-            intent.putExtra(Constants.EXTRA_POSITION, mPosition);
-            Point size = new Point();
-            getWindowManager().getDefaultDisplay().getSize(size);
-            int screenWidth = size.x;
-            int screenHeight = size.y;
-            try {
-                if (mFrame.getFrame() != null) {
-                    Bitmap bitmap = BitmapHelper.resizeBitmap(mFrame.getFrame(),
-                            screenWidth, screenHeight);
-                    intent.putExtra(Constants.EXTRA_PHOTO_PATH,
-                            FileUtil.saveImage(AdjustImageActivity.this, bitmap));
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (mFrame.getPhotoPath().contains(FileUtil.getAppFolderPath(this))) {
+            FileUtil.removeFile(mFrame.getPhotoPath());
+        }
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+        int screenWidth = size.x;
+        int screenHeight = size.y;
+        try {
+            if (mFrame.getFrame() != null) {
+                Bitmap bitmap = BitmapHelper.resizeBitmap(mOriginImage,
+                        screenWidth, screenHeight);
+                mFrame.setPhotoPath(FileUtil.saveImage(AdjustImageActivity.this, bitmap));
             }
-            setResult(RESULT_OK, intent);
-            finish();
-        } else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.error).setMessage(R.string.cannot_save).show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    public void setEffect(EditingEffect effect) {
-        if (mProcessedImage == null) mProcessedImage = mFrame.getFrame();
-        mHandlingImageAsynctask = new HandlingImageAsyncTask(effect, mProcessedImage, mProgressDialog);
-        mHandlingImageAsynctask.setOnProgressListener(this);
-        mHandlingImageAsynctask.execute();
-    }
-
-    @Override
-    public void onFinish(Bitmap bitmap) {
-        mOriginImage = bitmap;
-        mAdjustImage.setImageBitmap(mOriginImage);
+    private void setEffect(EditingEffect effect) {
+        if (mProcessedImage == null) mProcessedImage = BitmapHelper.copy(mOriginImage);
+        mHandlingImageAsyncTask = new HandlingImageAsyncTask(effect, mProcessedImage, mProgressDialog);
+        mHandlingImageAsyncTask.setOnProgressListener(this);
+        mHandlingImageAsyncTask.execute();
     }
 
     private void init() {
@@ -475,93 +482,27 @@ public class AdjustImageActivity extends BaseActivity implements
         mNegativeEffect = new NegativeEffect();
     }
 
-    @Override
-    public void onButtonClickListener(@AdjustImageBar.AdjustImageBarButtonDef int button) {
-        switch (button) {
-            case AdjustImageBar.BUTTON_COMPLETE:
-//<<<<<<< HEAD
-////                saveImage();
-//                break;
-//            case AdjustImageBar.BUTTON_CANCEL:
-//                mAdjustmentImageBar.setVisibility(View.INVISIBLE);
-//                mProcessedImage = mFrame.getFrame();
-//                mAdjustImage.setImageBitmap(mProcessedImage);
-//=======
-                saveImage();
-                break;
-            case AdjustImageBar.BUTTON_CANCEL:
-                mProcessedImage = mFrame.getFrame();
-                mAdjustImage.setImageBitmap(mProcessedImage);
-                setupSeekbar(false);
-                break;
-        }
-    }
-
-    @Override
-    public void onSeekBarValueChange(int progress) {
-        if (mProcessedImage == null) mProcessedImage = mFrame.getFrame();
-        float progressColorValue = progress - IMAGE_VALUE;
-        switch (mEffectType) {
-            case RED:
-                mColorEffect = new ColorEffect(progressColorValue, ColorEffect.Type.RED);
-                break;
-            case BLUE:
-                mColorEffect = new ColorEffect(progressColorValue, ColorEffect.Type.BLUE);
-                break;
-            case GREEN:
-                mColorEffect = new ColorEffect(progressColorValue, ColorEffect.Type.GREEN);
-                break;
-            case ALPHA:
-                mColorEffect = new ColorEffect(progressColorValue, ColorEffect.Type.ALPHA);
-                break;
-            case CONTRAST:
-                mContrastEffect = new ContrastEffect(progress);
-                break;
-        }
-        if (mEffectType == CONTRAST) {
-            setEffect(mContrastEffect);
-        } else {
-            setEffect(mColorEffect);
-        }
-    }
-
     private void startCrop() {
+        mImageUri = Uri.fromFile(new File(mFrame.getPhotoPath()));
         CropImage.activity(mImageUri)
                 .setGuidelines(CropImageView.Guidelines.ON)
                 .start(this);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            mImageUri = result.getUri();
-            try {
-                mProcessedImage = getImageFromUri(getApplicationContext(), mImageUri);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            mAdjustImage.setImageBitmap(mProcessedImage);
-        }
-    }
-
-    public static Bitmap getImageFromUri(Context context, Uri uri) throws IOException {
+    private Bitmap getImageFromUri(Context context, Uri uri) throws IOException {
         WindowManager windowManager =
                 (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         int size = windowManager.getDefaultDisplay().getWidth();
         InputStream input = context.getContentResolver().openInputStream(uri);
-
         BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
         onlyBoundsOptions.inJustDecodeBounds = true;
         BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
         input.close();
         if ((onlyBoundsOptions.outWidth == -1) || (onlyBoundsOptions.outHeight == -1))
             return null;
-
-        int originalSize = (onlyBoundsOptions.outHeight > onlyBoundsOptions.outWidth) ? onlyBoundsOptions.outHeight : onlyBoundsOptions.outWidth;
-
+        int originalSize = (onlyBoundsOptions.outHeight > onlyBoundsOptions.outWidth) ?
+                onlyBoundsOptions.outHeight : onlyBoundsOptions.outWidth;
         double ratio = (originalSize > size) ? (originalSize / size) : 1.0;
-
         BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
         bitmapOptions.inSampleSize = getPowerOfTwoForSampleRatio(ratio);
         input = context.getContentResolver().openInputStream(uri);
@@ -570,7 +511,7 @@ public class AdjustImageActivity extends BaseActivity implements
         return bitmap;
     }
 
-    private static int getPowerOfTwoForSampleRatio(double ratio) {
+    private int getPowerOfTwoForSampleRatio(double ratio) {
         int k = Integer.highestOneBit((int) Math.floor(ratio));
         if (k == 0) return 1;
         else return k;

@@ -63,6 +63,10 @@ public class BitmapHelper {
         return size;
     }
 
+    public static Bitmap copy(Bitmap bitmap) {
+        return Bitmap.createBitmap(bitmap);
+    }
+
     private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         final int height = options.outHeight;
         final int width = options.outWidth;

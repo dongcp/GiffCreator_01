@@ -41,7 +41,7 @@ public class HandlingImageAsyncTask extends AsyncTask<Void, Void, Void> {
             mProgressDialog.dismiss();
         }
         if (mOnProgressListener != null) {
-            mOnProgressListener.onFinish(mBaseBitmap);
+            mOnProgressListener.onHandleFinish(mBaseBitmap);
         }
         super.onPostExecute(aVoid);
     }
@@ -51,6 +51,6 @@ public class HandlingImageAsyncTask extends AsyncTask<Void, Void, Void> {
     }
 
     public interface OnProgressListener {
-        void onFinish(Bitmap bitmap);
+        void onHandleFinish(Bitmap bitmap);
     }
 }
