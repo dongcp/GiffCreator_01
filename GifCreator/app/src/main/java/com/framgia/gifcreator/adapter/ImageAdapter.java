@@ -58,17 +58,18 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             @Override
             public void onClick(View v) {
                 if (!ShowListChosenImageActivity.sCanAdjustFrame) {
-                    if (ShowListChosenImageActivity.sNumberOfFrames < Constants.MAXIMUM_FRAMES) {
-                        frame.setChecked(!frame.isChosen());
-                        if (frame.isChosen()) {
+                    if (frame.isChosen()) {
+                        frame.setChecked(false);
+                        ShowListChosenImageActivity.sNumberOfFrames--;
+                    } else {
+                        if (ShowListChosenImageActivity.sNumberOfFrames < Constants.MAXIMUM_FRAMES) {
+                            frame.setChecked(true);
                             ShowListChosenImageActivity.sNumberOfFrames++;
                         } else {
-                            ShowListChosenImageActivity.sNumberOfFrames--;
+                            AppHelper.showSnackbar(ShowListChosenImageActivity.sCoordinatorLayout,
+                                    R.string.out_of_limit);
+                            frame.setChecked(false);
                         }
-                    } else {
-                        AppHelper.showSnackbar(ShowListChosenImageActivity.sCoordinatorLayout,
-                                R.string.out_of_limit);
-                        frame.setChecked(false);
                     }
                     notifyItemChanged(position);
                 } else {

@@ -13,8 +13,7 @@ public class GetPhotoDialog {
 
     public final static int TYPE_CAMERA = 0,
             TYPE_GALLERY = 1,
-            TYPE_FACEBOOK = 2,
-            TYPE_REMOVE = 3;
+            TYPE_REMOVE = 2;
     private Context mContext;
     private OnDialogItemChooseListener mOnDialogItemChooseListener;
     private CharSequence[] mDialogItems;
@@ -26,16 +25,14 @@ public class GetPhotoDialog {
     public GetPhotoDialog(Context context, boolean enableRemoveButton) {
         mContext = context;
         if (enableRemoveButton) {
-            mDialogItems = new CharSequence[4];
-            mDialogItems[0] = mContext.getString(R.string.get_photo_from_camera);
-            mDialogItems[1] = mContext.getString(R.string.get_photo_from_gallery);
-            mDialogItems[2] = mContext.getString(R.string.get_photo_from_facebook);
-            mDialogItems[3] = mContext.getString(R.string.remove_frame);
-        } else {
             mDialogItems = new CharSequence[3];
             mDialogItems[0] = mContext.getString(R.string.get_photo_from_camera);
             mDialogItems[1] = mContext.getString(R.string.get_photo_from_gallery);
-            mDialogItems[2] = mContext.getString(R.string.get_photo_from_facebook);
+            mDialogItems[2] = mContext.getString(R.string.remove_frame);
+        } else {
+            mDialogItems = new CharSequence[2];
+            mDialogItems[0] = mContext.getString(R.string.get_photo_from_camera);
+            mDialogItems[1] = mContext.getString(R.string.get_photo_from_gallery);
         }
     }
 

@@ -9,7 +9,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,8 +16,8 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import com.framgia.gifcreator.R;
 
+import com.framgia.gifcreator.R;
 import com.framgia.gifcreator.adapter.ImageAdapter;
 import com.framgia.gifcreator.data.Constants;
 import com.framgia.gifcreator.data.Frame;
@@ -88,6 +87,8 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                     }
                     break;
                 case Constants.REQUEST_GALLERY:
+                    sNumberOfFrames = 0;
+                    sCanAdjustFrame = false;
                     mIsChosenList = false;
                     if (mGalleryList.size() == 0) {
                         mGalleryList = getImageListGallery();
@@ -100,6 +101,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
         mRecyclerView.setLayoutManager(gridLayoutManager);
         mRecyclerView.setAdapter(mImageAdapter);
         enableBackButton();
+        mToolbar.setTitle(R.string.title_show_chosen_images_activity);
     }
 
     @Override
@@ -178,8 +180,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                 break;
             case R.id.action_open_list_chosen:
                 if (getChosenList().size() > MAX_SIZE) {
-                    Snackbar.make(sCoordinatorLayout,
-                            getString(R.string.out_of_limit), Snackbar.LENGTH_SHORT).show();
+                    AppHelper.showSnackbar(sCoordinatorLayout, R.string.out_of_limit);
                 } else {
                     sCanAdjustFrame = true;
                     mIsChosenList = true;
@@ -198,9 +199,30 @@ public class ShowListChosenImageActivity extends BaseActivity implements
     public void onBackPressed() {
         if (!mIsChosenList) {
             mIsChosenList = true;
+            sCanAdjustFrame = true;
+            int chosenListSize = mChosenList.size();
+            int gallerySize = mGalleryList.size();
+            if (gallerySize > 0) {
+                for (int i = 0; i < gallerySize; i++) {
+                    mGalleryList.get(i).setChecked(false);
+                }
+                if (chosenListSize > 0) {
+                    for (int i = 0; i < chosenListSize; i++) {
+                        for (int j = 0; j < gallerySize; j++) {
+                            Frame frame = mGalleryList.get(j);
+                            if (frame.getPhotoPath().equals(mChosenList.get(i).getPhotoPath())) {
+                                frame.setChecked(true);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            sNumberOfFrames = chosenListSize;
             refresh(mChosenList);
         } else {
             super.onBackPressed();
+            sCanAdjustFrame = false;
         }
     }
 
@@ -260,8 +282,7 @@ public class ShowListChosenImageActivity extends BaseActivity implements
                     }
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle(R.string.error).
-                            setMessage(R.string.cannot_access_gallery).show();
+                    builder.setTitle(R.string.error).setMessage(R.string.cannot_access_gallery).show();
                 }
                 break;
         }
@@ -276,13 +297,17 @@ public class ShowListChosenImageActivity extends BaseActivity implements
             startActivityForResult(intent, Constants.REQUEST_ADJUST);
         } else {
             Frame frame = mAllItemList.get(position);
-            if (sNumberOfFrames < Constants.MAXIMUM_FRAMES) {
-                frame.setChecked(!frame.isChosen());
-                if (frame.isChosen()) sNumberOfFrames++;
-                else sNumberOfFrames--;
-            } else {
-                AppHelper.showSnackbar(sCoordinatorLayout, R.string.out_of_limit);
+            if (frame.isChosen()) {
+                sNumberOfFrames--;
                 frame.setChecked(false);
+            } else {
+                if (sNumberOfFrames < Constants.MAXIMUM_FRAMES) {
+                    frame.setChecked(true);
+                    sNumberOfFrames++;
+                } else {
+                    AppHelper.showSnackbar(sCoordinatorLayout, R.string.out_of_limit);
+                    frame.setChecked(false);
+                }
             }
             mImageAdapter.notifyItemChanged(position);
         }
@@ -335,8 +360,9 @@ public class ShowListChosenImageActivity extends BaseActivity implements
         List<Frame> chosenList = new ArrayList<>();
         int length = mAllItemList.size();
         for (int i = 0; i < length; i++) {
-            if (mAllItemList.get(i).isChosen()) {
-                chosenList.add(mAllItemList.get(i));
+            Frame frame = mAllItemList.get(i);
+            if (frame.isChosen()) {
+                chosenList.add(frame);
             }
         }
         return chosenList;
